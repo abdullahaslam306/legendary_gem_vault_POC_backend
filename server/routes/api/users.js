@@ -25,13 +25,41 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-    let user = new User();
-    user.walletAddress = req.body.publicAddress;
-    user.save((err, result) => {
-        if(!err){
-            next(new OkResponse({result: result}));
-        }
-    })
+    const walletAddress = req.body.publicAddress;
+    const signature = req.body.signature;
+    if (!signature || !walletAddress){
+        return res
+        .status(400)
+        .send({ error: 'Request should have signature and publicAddress' });
+    }
+
+    const msg = `I am signing my one-time nonce: ${54788}`;
+
+    // We now are in possession of msg, publicAddress and signature. We
+    // will use a helper from eth-sig-util to extract the address from the signature
+    const msgBufferHex = bufferToHex(Buffer.from(msg, 'utf8'));
+    const address = recoverPersonalSignature({
+        data: msgBufferHex,
+        sig: signature,
+    });
+
+    // The signature verification is successful if the address found with
+    // sigUtil.recoverPersonalSignature matches the initial publicAddress
+    if (address.toLowerCase() == walletAddress.toLowerCase()) {
+        let user = new User();
+        user.walletAddress = req.body.publicAddress;
+        user.save((err, result) => {
+            if(!err){
+                next(new OkResponse({result: result}));
+            }
+        })
+    } else {
+        res.status(401).send({
+            error: 'Signature verification failed',
+        });
+        return null;
+    }
+
 });
 
 router.post('/auth', (req, res, next) => {
