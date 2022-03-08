@@ -27,13 +27,14 @@ router.get('/', (req, res, next) => {
 router.post('/', (req, res, next) => {
     const walletAddress = req.body.publicAddress;
     const signature = req.body.signature;
+    const nonce = req.body.nonce;
     if (!signature || !walletAddress){
         return res
         .status(400)
         .send({ error: 'Request should have signature and publicAddress' });
     }
 
-    const msg = `I am signing my one-time nonce: ${54788}`;
+    const msg = `I am signing-up using my one-time nonce: ${nonce}`;
 
     // We now are in possession of msg, publicAddress and signature. We
     // will use a helper from eth-sig-util to extract the address from the signature
