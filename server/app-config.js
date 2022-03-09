@@ -69,6 +69,11 @@ module.exports = (app) => {
   }
 
   require('./models/User');
+  require('./models/Perk');
+  require('./models/Category');
+  require('./models/PerkCategory');
+  require('./models/Staking');
+  require('./models/Config');
 
   app.use(require('./routes'));
 
