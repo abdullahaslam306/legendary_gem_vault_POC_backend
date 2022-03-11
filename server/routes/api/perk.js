@@ -22,18 +22,18 @@ router.post('/', (req, res, next) => {  //There will be an auth middleware to ch
 
 router.get('/', (req, res, next) => {
     try{
-    const options = {
-        page: +req.query.page || 1,
-        limit: +req.query.limit || 10,
-    }
-
-    Perk.paginate({}, options, (err, result) => {
-        if(err) {
-            next(new BadRequestResponse({err: err}));
-        }else{
-            next(new OkResponse({perk: result}));
+        const options = {
+            page: +req.query.page || 1,
+            limit: +req.query.limit || 10,
         }
-    });
+ 
+        Perk.paginate({}, options, (err, result) => {
+            if(err) {
+                next(new BadRequestResponse({err: err}));
+            }else{
+                next(new OkResponse({perk: result}));
+            }
+        });
     }catch(err) {console.log(err);}
 });
 

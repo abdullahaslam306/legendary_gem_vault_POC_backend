@@ -73,6 +73,7 @@ module.exports = (app) => {
   require('./models/Category');
   require('./models/PerkCategory');
   require('./models/Staking');
+  require('./models/NFT');
   require('./models/Config');
 
   app.use(require('./routes'));
