@@ -9,7 +9,7 @@ let BadRequestResponse = httpResponse.BadRequestResponse;
 router.get('/', (req, res, next) => {
     const options = {
         page: +req.query.page || 1,
-        limit: +req.query.limit || 10,
+        limit: +req.query.limit || 10000,
     }
 
     NFT.paginate({}, options, (err, result) => {
@@ -19,6 +19,12 @@ router.get('/', (req, res, next) => {
             next(new OkResponse({result: result}));
         }
     })
+});
+
+router.get('/search', (req, res, next) => {
+    NFT.find({tokenId: new RegExp(req.query.tokenId, 'i')}).then((result) =>{
+        next(new OkResponse({result: result}));
+    });
 })
 
 module.exports = router;
