@@ -3,6 +3,7 @@ require('../models/NFT');
 let mongoose = require("mongoose");
 let NFT = mongoose.model("NFT");
 
+
 mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -16,7 +17,7 @@ mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
         console.log("Connected to DB in development environment");
         seedNFTs();
         // checkMissing();
-    });;
+    });
 
 
 seedNFTs = async () => {
