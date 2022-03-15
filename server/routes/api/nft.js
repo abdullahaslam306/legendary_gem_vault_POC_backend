@@ -9,7 +9,7 @@ let BadRequestResponse = httpResponse.BadRequestResponse;
 router.get('/', (req, res, next) => {
     const options = {
         page: +req.query.page || 1,
-        limit: +req.query.limit || 10000,
+        limit: +req.query.limit || 30,
     }
 
     NFT.paginate({}, options, (err, result) => {
