@@ -75,6 +75,8 @@ module.exports = (app) => {
   require('./models/Staking');
   require('./models/NFT');
   require('./models/Config');
+  require('./models/Order');
+  require('./models/OrderAsset');
 
   app.use(require('./routes'));
 
