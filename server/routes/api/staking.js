@@ -60,6 +60,8 @@ router.post('/filter', async (req, res, next) => {
     let allStakedNFTs = await Staking.find({endDate: null});   // All the NFTs that are still staked
     allStakedNFTs = allStakedNFTs.map(nft => {return nft.asset})
 
+    let allNFTs = await NFT.find({tokenId: {$in: userNFTs}});
+
     let stakedNFTsArray = [];
     let unstakedNFTsArray = [];
     let itemsProcessed = 0;
@@ -74,6 +76,7 @@ router.post('/filter', async (req, res, next) => {
         itemsProcessed++;
         if(itemsProcessed == array.length){
             next(new OkResponse({
+                allNFTs: allNFTs,
                 stakedNFTs: stakedNFTsArray, 
                 unstakedNFTs: unstakedNFTsArray
             }));
