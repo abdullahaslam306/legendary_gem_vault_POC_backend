@@ -12,7 +12,6 @@ function getTokenFromHeader(req){
 }
 
 const user = (req, res, next) => {
-    console.log(req.payload)
     User.findById(req.payload.payload.id).then(function(user){
       if(!user){
         next(new UnauthorizedResponse ());

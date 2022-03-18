@@ -11,9 +11,7 @@ router.post('/', (req, res, next) => {  //There will be an auth middleware to ch
     perk.description = req.body.perk.description;
     perk.image = req.body.perk.image;
     perk.price = req.body.perk.price;
-    perk.sold = null
-
-    //No value assigned to 'sold.user and sold.date because perk is unsold when being created
+    perk.quantity = req.body.perk.quantity;
 
     perk.save().then(() => {
         next(new OkResponse({perk: perk}));
