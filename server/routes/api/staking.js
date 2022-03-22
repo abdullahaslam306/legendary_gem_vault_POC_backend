@@ -10,7 +10,7 @@ let BadRequestResponse = httpResponse.BadRequestResponse;
 
 let auth = require('../../middlewares/auth');
 
-router.post('/',auth.required, auth.user,  (req, res, next) => {
+router.post('/', auth.required, auth.user, (req, res, next) => {
     let staking = new Staking();
     staking.asset = req.body.asset;
     staking.startDate = Date.now();
@@ -18,6 +18,22 @@ router.post('/',auth.required, auth.user,  (req, res, next) => {
     staking.save().then(() => {
         next(new OkResponse(staking));
     })
+});
+
+router.post('/stakeAll',auth.required, auth.user, (req, res, next) => {
+    let assetsToStake = req.body.assetsToStake;
+    let itemsProcessed = 0;
+    assetsToStake.forEach(async (asset, index, array) => {
+        let staking = new Staking();
+        staking.asset = asset;
+        staking.startDate = Date.now();
+
+        await staking.save();
+        itemsProcessed++;
+        if(itemsProcessed == array.length){
+            next(new OkResponse({message: 'All NFTs staked'}));
+        }
+    });
 });
 
 router.post('/unstake', auth.required, auth.user, (req, res, next) => {
