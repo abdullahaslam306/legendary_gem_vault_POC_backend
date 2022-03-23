@@ -3,6 +3,7 @@ os: linux
 files:
   - source: /
     destination: /opt/app
+    overwrite: true
 permissions:
   - object: /opt/app
     owner: ubuntu
