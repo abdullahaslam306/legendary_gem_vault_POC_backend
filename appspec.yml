@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /opt/app
+    destination: /opt/app/backend
     overwrite: true
 permissions:
   - object: /opt/app
