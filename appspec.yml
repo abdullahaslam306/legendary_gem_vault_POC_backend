@@ -1,0 +1,17 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /opt/app
+permissions:
+  - object: /opt/app
+    owner: ubuntu
+    group: ubuntu
+
+hooks:
+  BeforeInstall:
+    - location: scripts/stopserver.sh
+      runas: ubuntu
+  AfterInstall:
+    - location: scripts/dependenciesAndStart.sh
+      runas: ubuntu
