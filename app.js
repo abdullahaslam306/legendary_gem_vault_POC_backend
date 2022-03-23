@@ -5,7 +5,7 @@ require('dotenv').config();
 // Create global app object
 let app = express();
 require('./server/app-config')(app);
-//comments
+
 
 // finally, let's start our server...
 let server = app.listen(process.env.PORT || 5000, function () {
