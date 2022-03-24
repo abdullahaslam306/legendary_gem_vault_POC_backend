@@ -2,38 +2,70 @@ let router = require('express').Router();
 let mongoose = require("mongoose");
 let Perk = mongoose.model('Perk');
 let Order = mongoose.model('Order');
+let NFT = mongoose.model('NFT');
+let OrderAsset = mongoose.model('OrderAsset');
 let httpResponse = require('express-http-response');
 let OkResponse = httpResponse.OkResponse;
-let ForbiddenResponse = httpResponse.ForbiddenResponse;
 let BadRequestResponse = httpResponse.BadRequestResponse;
 let auth = require('../../middlewares/auth');
 
 router.post('/', auth.required, auth.user, (req, res, next) => {
-    Perk.findOne({_id: req.body.perk}).then(async (perk, err) => {
-        if(err || !perk) {
-            console.log(err);
-            next(new BadRequestResponse('Perk does not exist!'));
-        }else {
-            if(req.body.quantity <= 0){
-                next(new BadRequestResponse('Quantity has to be greater than 0!'));
+    let deductions = req.body.deductions;
+    let perks = req.body.perks;
+    let perksIds = perks.map(perk => {return perk.id});
+    let itemsProcessed = 0;
+    let totalQty = 0;
+    perks.forEach((perk, index, array) => {
+        Perk.findOne({_id: perk.id}, (err, result) => {
+            totalQty += Number(perk.quantity);
+            if((Number(result.quantity) - Number(perk.quantity)) <= 0){
+                next(new BadRequestResponse('One of the requested Perk is out of stock!'));
             }
-            else if((perk.quantity - req.body.quantity) < 0){
-                next(new BadRequestResponse('Quantity exceeded available stock!'));
-            }else{
-                perk.quantity -= req.body.quantity;
-                await perk.save();
+            itemsProcessed++;
+            if(itemsProcessed == array.length){
                 let order = new Order();
+                order.firstName = req.body.firstName;
+                order.lastName = req.body.lastName;
+                order.country = req.body.country;
+                order.phone = req.body.phone;
+                order.email = req.body.email;
+                order.email2 = req.body.email2;
+                order.remarks = req.body.remarks;
                 order.user = req.user._id;
-                order.perk = req.body.perk;
                 order.date = Date.now();
-                order.quantity = req.body.quantity
+                order.quantity = totalQty;
+                order.perks = perksIds;
 
-                order.save().then(() => {
+                for(let i = 0;i < perks.length;i++){
+                    Perk.findOne({_id: perks[i].id}, async(err, result) => {
+                        result.quantity -= Number(perks[i].quantity);
+                        await result.save();
+                    })
+                }
+
+                order.save().then( async() => {
+                    for(let i = 0;i < deductions?.length;i++){
+                        NFT.findOne({tokenId: deductions[i].asset}, async(err, nft) => {
+                            nft.noOfGems -= Number(deductions[i].amount);
+                            await nft.save();
+                        })
+
+                        let orderAsset = new OrderAsset();
+                        orderAsset.order = order._id;
+                        orderAsset.address = deductions[i].asset;
+                        orderAsset.gems = deductions[i].amount;
+                        await orderAsset.save();
+                    }
                     next(new OkResponse({order: order}));
-                });
+                }).catch((e) => { next(new BadRequestResponse(e.error)); });
             }
-        }
-    }).catch((e) => { next(new BadRequestResponse(e.error)) });
+        })
+    })
 });
 
+
 module.exports = router;
+
+// order: {type: mongoose.Schema.Types.ObjectId, ref: 'Order'},
+// address: {type: String},
+// gems: {type: Number}

@@ -22,14 +22,14 @@ router.get('/', (req, res, next) => {
     try{
         const options = {
             page: +req.query.page || 1,
-            limit: +req.query.limit || 10,
+            limit: +req.query.limit || 12,
         }
  
         Perk.paginate({}, options, (err, result) => {
             if(err) {
                 next(new BadRequestResponse({err: err}));
             }else{
-                next(new OkResponse({perk: result}));
+                next(new OkResponse({perks: result}));
             }
         });
     }catch(err) {console.log(err);}
