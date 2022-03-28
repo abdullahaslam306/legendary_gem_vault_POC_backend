@@ -19,7 +19,7 @@ mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
     });
 
 seedPerks = async() => {
-    description = [
+    let description = [
         'HOL Disk',
         'Tesla Cut',
         'Moon Piece',
@@ -34,11 +34,11 @@ seedPerks = async() => {
         'Laptop HOL'
     ];
 
-    price = [150, 110, 255, 550, 1250, 615, 1400, 1600, 1800, 715, 220, 180];
+    let price = [150, 110, 255, 550, 1250, 615, 1400, 1600, 1800, 715, 220, 180];
 
-    quantity = [50, 25, 55, 25, 14, 21, 65, 35, 80, 45, 38, 6];
+    let quantity = [50, 25, 55, 25, 14, 21, 65, 35, 80, 45, 38, 6];
 
-    image = [
+    let image = [
         'https://cdn.pixabay.com/photo/2017/07/15/15/50/fantasy-2506830_960_720.jpg',
         'https://cdn.pixabay.com/photo/2014/04/17/23/26/environmental-protection-326923_960_720.jpg',
         'https://cdn.pixabay.com/photo/2014/02/05/08/19/smoke-258786_960_720.jpg',
@@ -53,12 +53,15 @@ seedPerks = async() => {
         'https://cdn.pixabay.com/photo/2016/09/18/14/21/swimmer-1678307_960_720.jpg',
     ]
 
+    let showOnTop = [ false, false, false, false, false, false, false, false, true, true, true, true,]
+
     for(let i = 0;i < 12;i++) {
         let perk = new Perk();
         perk.description = description[i];
         perk.image = image[i];
         perk.price = price[i];
         perk.quantity = quantity[i];
+        perk.showOnTop = showOnTop[i];
 
         await perk.save();
     }

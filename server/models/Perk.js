@@ -7,6 +7,7 @@ let PerkSchema = new mongoose.Schema({
     price: {type: Number},  //Price in No. of gems
     type: {type: String},  // For future use
     quantity: {type: Number}, //Total number of items available for this particular Perk
+    showOnTop: {type: Boolean, default: false}, 
 }, {timestamps: true});
 
 PerkSchema.plugin(mongoosePaginate);
