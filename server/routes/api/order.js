@@ -65,7 +65,3 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
 
 
 module.exports = router;
-
-// order: {type: mongoose.Schema.Types.ObjectId, ref: 'Order'},
-// address: {type: String},
-// gems: {type: Number}
