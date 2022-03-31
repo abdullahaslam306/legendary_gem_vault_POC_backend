@@ -8,6 +8,12 @@ let NFTSchema = new mongoose.Schema({
     noOfGems: {type: Number, default: 0}
 }, {timestamps: true});
 
+NFTSchema.set('toJSON', {
+  virtuals: true,
+  versionKey:false,
+  transform: function (doc, ret) {   delete ret._id  }
+});
+
 NFTSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model("NFT", NFTSchema);

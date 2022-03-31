@@ -34,12 +34,14 @@ module.exports = (app) => {
 
   // Normal express config defaults
   app.use(require('morgan')('dev'));
-  app.use(bodyParser.urlencoded({ extended: false, limit: '500mb' }));
+  app.use(bodyParser.urlencoded({ extended: true, limit: '500mb' }));
   app.use(bodyParser.json({ limit: '500mb' }));
   // Get the user's locale, and set a default in case there's none
   
-
-
+app.use((req, res, next) => {
+    res.append('Content-Range', 'nfts 0-20/20');
+    next()
+})
 
   app.use(require('method-override')());
   app.use(express.static(path.join(__dirname, '/public')));
