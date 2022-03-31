@@ -38,7 +38,7 @@ function download(uri, filename) {
 const seedImages = async () => {
     for(let i = 0;i < 10; i++) {
         const uri = `${baseUrl}/${i}.png`,
-              fileName = `${path}/${i}.png`;
+            fileName = `${path}/${i}.png`;
         console.log('start', i)
         await 
             download(uri, fileName).
