@@ -29,7 +29,7 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
                 order.country = req.body.country;
                 order.phone = req.body.phone;
                 order.email = req.body.email;
-                order.email2 = req.body.email2;
+                order.walletAddress = req.body.walletAddress;
                 order.remarks = req.body.remarks;
                 order.user = req.user._id;
                 order.date = Date.now();
@@ -57,6 +57,7 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
                         await orderAsset.save();
                     }
                     next(new OkResponse({order: order}));
+                    
                 }).catch((e) => { next(new BadRequestResponse(e.error)); });
             }
         })
