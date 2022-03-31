@@ -7,16 +7,30 @@ let ForbiddenResponse = httpResponse.ForbiddenResponse;
 let BadRequestResponse = httpResponse.BadRequestResponse;
 
 router.get('/', (req, res, next) => {
+    let query = {};
     const options = {
         page: +req.query.page || 1,
         limit: +req.query.limit || 30,
     }
 
-    NFT.paginate({}, options, (err, result) => {
+    if (typeof req.query.min !== undefined && req.query.min && req.query.min !== null && 
+        typeof req.query.max !== undefined && req.query.max && req.query.max !== null) {
+        query.noOfGems = { $gte: req.query.min, $lte: req.query.max };
+    }
+
+    NFT.paginate(query, options, (err, result1) => {
         if(err) {
             next(new BadRequestResponse({err: err}));
         }else{
-            next(new OkResponse({result: result}));
+            let maxGems = 0;
+            NFT.find({}, (err, result) => {
+                for(let i = 0;i < result.length;i++){
+                    if(result[i].noOfGems > maxGems){
+                        maxGems = result[i].noOfGems;
+                    }
+                }
+                next(new OkResponse({result: result1, maxGems: maxGems}));
+            })
         }
     })
 });
@@ -25,6 +39,7 @@ router.get('/search', (req, res, next) => {
     NFT.find({tokenId: new RegExp(req.query.tokenId, 'i')}).then((result) =>{
         next(new OkResponse({result: result}));
     });
-})
+});
+
 
 module.exports = router;

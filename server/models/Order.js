@@ -11,7 +11,7 @@ let OrderSchema = new mongoose.Schema({
     country: {type: String},
     phone: {type: String},
     email: {type: String},
-    email2: {type: String},
+    walletAddress: {type: String},
     remarks: {type: String},
 }, {timestamps: true});
 
