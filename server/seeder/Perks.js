@@ -53,7 +53,7 @@ seedPerks = async() => {
         'https://cdn.pixabay.com/photo/2016/09/18/14/21/swimmer-1678307_960_720.jpg',
     ]
 
-    let type = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3];
+    let type = [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2];
 
     let showOnTop = [ false, false, false, false, false, false, false, false, true, true, true, true,]
 

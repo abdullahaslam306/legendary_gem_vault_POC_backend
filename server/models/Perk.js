@@ -8,8 +8,8 @@ let PerkSchema = new mongoose.Schema({
     type: {
         type: Number,
         enum: [
-            1,  //Coin/NFT
-            2,  //Coupon
+            1,  //Coupon
+            2,  //Coin
             3,  //Real World Item
         ]
     },  // For future use
