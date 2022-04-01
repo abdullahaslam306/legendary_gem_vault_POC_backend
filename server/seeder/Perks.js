@@ -53,6 +53,8 @@ seedPerks = async() => {
         'https://cdn.pixabay.com/photo/2016/09/18/14/21/swimmer-1678307_960_720.jpg',
     ]
 
+    let type = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3];
+
     let showOnTop = [ false, false, false, false, false, false, false, false, true, true, true, true,]
 
     for(let i = 0;i < 12;i++) {
@@ -60,6 +62,7 @@ seedPerks = async() => {
         perk.description = description[i];
         perk.image = image[i];
         perk.price = price[i];
+        perk.type = type[i];
         perk.quantity = quantity[i];
         perk.showOnTop = showOnTop[i];
 
