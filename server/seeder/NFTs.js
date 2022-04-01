@@ -21,7 +21,6 @@ mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
 
 
 seedNFTs = async () => {
-    let nfts = [];
     console.log('Seeding NFTs to the Database...');
     await Moralis.start({ serverUrl: "https://rpc11whc2ogq.usemoralis.com:2053/server", appId: "iNsfWaO6RE0vRpBkcPQN2JmOdSm94lMKnaAu2bMV" });
     for(let i = 0;i <= 9500;i=i+500) {
