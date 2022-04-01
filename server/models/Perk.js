@@ -11,4 +11,12 @@ let PerkSchema = new mongoose.Schema({
 
 PerkSchema.plugin(mongoosePaginate);
 
+
+PerkSchema.set('toJSON', {
+  virtuals: true,
+  versionKey:false,
+  transform: function (doc, ret) {   delete ret._id  }
+});
+
+
 module.exports = mongoose.model("Perk", PerkSchema);
