@@ -15,25 +15,28 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
     let perksIds = perks.map(perk => {return perk.id});
     let itemsProcessed = 0;
     let totalQty = 0;
+    let quantityArray = [];
     perks.forEach((perk, index, array) => {
         Perk.findOne({_id: perk.id}, (err, result) => {
-            totalQty += Number(perk.quantity);
+            // totalQty += Number(perk.quantity);
+            quantityArray.push({
+                perk: perk.id,
+                quantity: Number(perk.quantity)
+            })
             if((Number(result.quantity) - Number(perk.quantity)) <= 0){
                 next(new BadRequestResponse('One of the requested Perk is out of stock!'));
             }
             itemsProcessed++;
             if(itemsProcessed == array.length){
                 let order = new Order();
-                order.firstName = req.body.firstName;
-                order.lastName = req.body.lastName;
-                order.country = req.body.country;
-                order.phone = req.body.phone;
+                order.name = req.body.name;
+                order.discord = req.body.discord;
+                order.walletAddress = req.body.walletAddress;
                 order.email = req.body.email;
-                order.email2 = req.body.email2;
                 order.remarks = req.body.remarks;
                 order.user = req.user._id;
                 order.date = Date.now();
-                order.quantity = totalQty;
+                order.quantityArray = quantityArray;
                 order.perks = perksIds;
 
                 for(let i = 0;i < perks.length;i++){
@@ -57,6 +60,7 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
                         await orderAsset.save();
                     }
                     next(new OkResponse({order: order}));
+                    
                 }).catch((e) => { next(new BadRequestResponse(e.error)); });
             }
         })
@@ -65,7 +69,3 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
 
 
 module.exports = router;
-
-// order: {type: mongoose.Schema.Types.ObjectId, ref: 'Order'},
-// address: {type: String},
-// gems: {type: Number}

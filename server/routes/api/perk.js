@@ -20,12 +20,17 @@ router.post('/', (req, res, next) => {  //There will be an auth middleware to ch
 
 router.get('/', (req, res, next) => {
     try{
+        let query = {};
         const options = {
             page: +req.query.page || 1,
             limit: +req.query.limit || 12,
         }
+
+        if (typeof req.query.gems !== undefined && req.query.gems && req.query.gems !== null) {
+            query.price = { $lte: req.query.gems };
+        }
  
-        Perk.paginate({}, options, (err, result) => {
+        Perk.paginate(query, options, (err, result) => {
             if(err) {
                 next(new BadRequestResponse({err: err}));
             }else{
