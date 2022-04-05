@@ -4,10 +4,14 @@ let Perk = mongoose.model('Perk');
 let Order = mongoose.model('Order');
 let NFT = mongoose.model('NFT');
 let OrderAsset = mongoose.model('OrderAsset');
+let Coupon = mongoose.model('Coupon');
 let httpResponse = require('express-http-response');
 let OkResponse = httpResponse.OkResponse;
 let BadRequestResponse = httpResponse.BadRequestResponse;
 let auth = require('../../middlewares/auth');
+const {
+    sendCouponEmail
+} = require('../../utilities/emailService');
 
 router.post('/', auth.required, auth.user, (req, res, next) => {
     let deductions = req.body.deductions;
@@ -26,6 +30,7 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
             if((Number(result.quantity) - Number(perk.quantity)) <= 0){
                 next(new BadRequestResponse('One of the requested Perk is out of stock!'));
             }
+
             itemsProcessed++;
             if(itemsProcessed == array.length){
                 let order = new Order();
@@ -39,7 +44,17 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
                 order.quantityArray = quantityArray;
                 order.perks = perksIds;
 
-                for(let i = 0;i < perks.length;i++){
+                for(let i = 0;i < perks.length;i++) {
+                    if(perks[i].type == 1){
+                        for(let j = 0;j < Number(perks[i].quantity);j++) {
+                            Coupon.findOneAndUpdate({perk: perks[i].id, used: false},{used: true},{returnNewDocument:true}, (err, result) => {
+                                sendCouponEmail(req.body.email, req.body.name, result.coupon);
+                            });
+                        }
+                    }
+                }
+
+                for(let i = 0;i < perks.length;i++) {
                     Perk.findOne({_id: perks[i].id}, async(err, result) => {
                         result.quantity -= Number(perks[i].quantity);
                         await result.save();
