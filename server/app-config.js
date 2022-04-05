@@ -4,7 +4,6 @@ let http = require('http'),
   bodyParser = require('body-parser'),
   session = require('express-session'),
   cors = require('cors'),
-  passport = require('passport'),
   errorhandler = require('errorhandler'),
   mongoose = require('mongoose'),
   secret = require('./config').secret,
@@ -77,6 +76,7 @@ module.exports = (app) => {
   require('./models/Config');
   require('./models/Order');
   require('./models/OrderAsset');
+  require('./models/Coupon');
 
   app.use(require('./routes'));
 

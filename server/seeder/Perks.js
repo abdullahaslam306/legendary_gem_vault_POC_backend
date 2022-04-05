@@ -1,7 +1,9 @@
 const Moralis = require('moralis/node');
 require('../models/Perk');
+require('../models/Coupon');
 let mongoose = require("mongoose");
 let Perk = mongoose.model('Perk');
+let Coupon = mongoose.model('Coupon');
 
 
 mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
@@ -36,7 +38,7 @@ seedPerks = async() => {
 
     let price = [150, 110, 255, 550, 1250, 615, 1400, 1600, 1800, 715, 220, 180];
 
-    let quantity = [50, 25, 55, 25, 14, 21, 65, 35, 80, 45, 38, 6];
+    let quantity = [10, 25, 5, 25, 4, 21, 5, 35, 8, 45, 3, 6];
 
     let image = [
         'https://cdn.pixabay.com/photo/2017/07/15/15/50/fantasy-2506830_960_720.jpg',
@@ -53,6 +55,8 @@ seedPerks = async() => {
         'https://cdn.pixabay.com/photo/2016/09/18/14/21/swimmer-1678307_960_720.jpg',
     ]
 
+    let type = [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2];
+
     let showOnTop = [ false, false, false, false, false, false, false, false, true, true, true, true,]
 
     for(let i = 0;i < 12;i++) {
@@ -60,11 +64,21 @@ seedPerks = async() => {
         perk.description = description[i];
         perk.image = image[i];
         perk.price = price[i];
+        perk.type = type[i];
         perk.quantity = quantity[i];
         perk.showOnTop = showOnTop[i];
 
-        await perk.save();
+        perk.save().then(async () => {
+            if(type[i] == 1){
+                for(let j = 0;j < quantity[i];j++){
+                    let coupon = new Coupon();
+                    coupon.sold = false;
+                    coupon.coupon = Math.floor(Math.random() * 9999).toString();
+                    coupon.perk = perk._id;
+                    await coupon.save();
+                }
+            }
+        });
     }
-
     console.log('Perks Seeded!')
 }

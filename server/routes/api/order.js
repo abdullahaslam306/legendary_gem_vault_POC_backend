@@ -4,10 +4,14 @@ let Perk = mongoose.model('Perk');
 let Order = mongoose.model('Order');
 let NFT = mongoose.model('NFT');
 let OrderAsset = mongoose.model('OrderAsset');
+let Coupon = mongoose.model('Coupon');
 let httpResponse = require('express-http-response');
 let OkResponse = httpResponse.OkResponse;
 let BadRequestResponse = httpResponse.BadRequestResponse;
 let auth = require('../../middlewares/auth');
+const {
+    sendCouponEmail
+} = require('../../utilities/emailService');
 
 router.post('/', auth.required, auth.user, (req, res, next) => {
     let deductions = req.body.deductions;
@@ -15,28 +19,42 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
     let perksIds = perks.map(perk => {return perk.id});
     let itemsProcessed = 0;
     let totalQty = 0;
+    let quantityArray = [];
     perks.forEach((perk, index, array) => {
         Perk.findOne({_id: perk.id}, (err, result) => {
-            totalQty += Number(perk.quantity);
+            // totalQty += Number(perk.quantity);
+            quantityArray.push({
+                perk: perk.id,
+                quantity: Number(perk.quantity)
+            })
             if((Number(result.quantity) - Number(perk.quantity)) <= 0){
                 next(new BadRequestResponse('One of the requested Perk is out of stock!'));
             }
+
             itemsProcessed++;
             if(itemsProcessed == array.length){
                 let order = new Order();
-                order.firstName = req.body.firstName;
-                order.lastName = req.body.lastName;
-                order.country = req.body.country;
-                order.phone = req.body.phone;
-                order.email = req.body.email;
+                order.name = req.body.name;
+                order.discord = req.body.discord;
                 order.walletAddress = req.body.walletAddress;
+                order.email = req.body.email;
                 order.remarks = req.body.remarks;
                 order.user = req.user._id;
                 order.date = Date.now();
-                order.quantity = totalQty;
+                order.quantityArray = quantityArray;
                 order.perks = perksIds;
 
-                for(let i = 0;i < perks.length;i++){
+                for(let i = 0;i < perks.length;i++) {
+                    if(perks[i].type == 1){
+                        for(let j = 0;j < Number(perks[i].quantity);j++) {
+                            Coupon.findOneAndUpdate({perk: perks[i].id, used: false},{used: true},{returnNewDocument:true}, (err, result) => {
+                                sendCouponEmail(req.body.email, req.body.name, result.coupon);
+                            });
+                        }
+                    }
+                }
+
+                for(let i = 0;i < perks.length;i++) {
                     Perk.findOne({_id: perks[i].id}, async(err, result) => {
                         result.quantity -= Number(perks[i].quantity);
                         await result.save();
