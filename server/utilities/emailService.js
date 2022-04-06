@@ -40,7 +40,7 @@ const sendCouponEmail = async (email, name, coupon) => {
     to: email,
     subject: "HOL Email Verification",
     templateObj: {
-      emailText: `<p>Hi ${name}, Congratulations!. You have bought the coupon with number ${coupon}.</p>
+      emailText: `<p>Hi ${name}, Congratulations!. You have bought the coupon with number(s) ${coupon}.</p>
        <p>Use this coupon to get discount on the store.</p>`,
     },
   });

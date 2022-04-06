@@ -44,15 +44,34 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
                 order.quantityArray = quantityArray;
                 order.perks = perksIds;
 
-                for(let i = 0;i < perks.length;i++) {
-                    if(perks[i].type == 1){
-                        for(let j = 0;j < Number(perks[i].quantity);j++) {
-                            Coupon.findOneAndUpdate({perk: perks[i].id, used: false},{used: true},{returnNewDocument:true}, (err, result) => {
-                                sendCouponEmail(req.body.email, req.body.name, result.coupon);
-                            });
+                let promises = [];
+                promises.push(new Promise ((resolve) => {
+                    for(let i = 0;i < perks.length;i++) {
+                        if(perks[i].type == 1){
+                            for(let j = 0;j < Number(perks[i].quantity);j++) {
+                                Coupon.findOneAndUpdate({perk: perks[i].id, used: false},{used: true},{returnNewDocument:true}, (err, result) => {
+                                    console.log('COUPON', result)
+                                    resolve(result);
+                                });
+                            }
                         }
                     }
-                }
+                }))
+
+                Promise.all(promises).then((results) => {
+                    console.log('RESULTS', results)
+                })
+
+                // for(let i = 0;i < perks.length;i++) {
+                //     if(perks[i].type == 1){
+                //         for(let j = 0;j < Number(perks[i].quantity);j++) {
+                //             Coupon.findOneAndUpdate({perk: perks[i].id, used: false},{used: true},{returnNewDocument:true}, (err, result) => {
+                //                 console.log('COUPON', result.coupon)
+                //                 couponsArray.push(result.coupon);
+                //             });
+                //         }
+                //     }
+                // }
 
                 for(let i = 0;i < perks.length;i++) {
                     Perk.findOne({_id: perks[i].id}, async(err, result) => {
