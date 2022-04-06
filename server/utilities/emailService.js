@@ -9,8 +9,8 @@ const sendEmail = (mailDetails) => {
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth:{
-      user: 'iqrarh190@gmail.com',
-      pass: 'Dummy123'
+      user: 'thegemvault.store@gmail.com', //Will come from env later
+      pass: 'Association50!@#', //Will Come from env
     },
   });
   // Open template file
