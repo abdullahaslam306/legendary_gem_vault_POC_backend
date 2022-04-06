@@ -100,4 +100,8 @@ router.post('/filter', async (req, res, next) => {
     })
 });
 
+router.get('/claim', auth.required, auth.user, (req, res, next) => {
+    
+})
+
 module.exports = router; 
