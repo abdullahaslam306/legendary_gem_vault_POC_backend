@@ -10,7 +10,6 @@ let PerkSchema = new mongoose.Schema({
         enum: [
             1,  //Coupon
             2,  //Coin
-            3,  //Real World Item
         ]
     },  // For future use
     quantity: {type: Number}, //Total number of items available for this particular Perk
