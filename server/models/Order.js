@@ -2,7 +2,7 @@ let mongoose = require("mongoose");
 const mongoosePaginate = require('mongoose-paginate-v2');
 
 let OrderSchema = new mongoose.Schema({
-    perks: [{type: mongoose.Schema.Types.ObjectId, ref: 'Perk'}],
+    // perks: [{type: mongoose.Schema.Types.ObjectId, ref: 'Perk'}],
     user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     date: {type: Date},
     quantityArray: {type:[{
