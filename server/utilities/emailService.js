@@ -9,8 +9,8 @@ const sendEmail = (mailDetails) => {
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth:{
-      user: 'iqrarh190@gmail.com',
-      pass: 'Dummy123'
+      user: 'thegemvault.store@gmail.com', //Will come from env later
+      pass: 'Association50!@#', //Will Come from env
     },
   });
   // Open template file
@@ -40,7 +40,7 @@ const sendCouponEmail = async (email, name, coupon) => {
     to: email,
     subject: "HOL Email Verification",
     templateObj: {
-      emailText: `<p>Hi ${name}, Congratulations!. You have bought the coupon with number ${coupon}.</p>
+      emailText: `<p>Hi ${name}, Congratulations!. You have bought the coupon with number(s) ${coupon}.</p>
        <p>Use this coupon to get discount on the store.</p>`,
     },
   });

@@ -16,7 +16,7 @@ const {
 router.post('/', auth.required, auth.user, (req, res, next) => {
     let deductions = req.body.deductions;
     let perks = req.body.perks;
-    let perksIds = perks.map(perk => {return perk.id});
+    // let perksIds = perks.map(perk => {return perk.id});
     let itemsProcessed = 0;
     let totalQty = 0;
     let quantityArray = [];
@@ -42,7 +42,8 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
                 order.user = req.user._id;
                 order.date = Date.now();
                 order.quantityArray = quantityArray;
-                order.perks = perksIds;
+                // order.perks = perksIds;
+
 
                 for(let i = 0;i < perks.length;i++) {
                     if(perks[i].type == 1){

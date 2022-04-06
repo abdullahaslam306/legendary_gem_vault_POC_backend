@@ -2,6 +2,7 @@ let router = require('express').Router();
 let mongoose = require("mongoose");
 let Staking = mongoose.model('Staking');
 let NFT = mongoose.model('NFT');
+let Config = mongoose.model('Config');
 let moment = require('moment');
 let httpResponse = require('express-http-response');
 let OkResponse = httpResponse.OkResponse;
@@ -99,5 +100,44 @@ router.post('/filter', async (req, res, next) => {
         }
     })
 });
+
+router.post('/claim', auth.required, auth.user, (req, res, next) => {
+    let flag = false;
+    let userNFTs = req.body.userAssets;
+    userNFTs = userNFTs.map(asset => {return asset.token_id});
+    let itemsProcessed = 0;
+    userNFTs.forEach(async (asset, index, array) => {
+        let record = await Staking.findOne({asset: asset, type: 2})
+        if(!record) {
+            flag = true;
+            let config = await Config.findOne({days: -1})
+            let staking = new Staking();
+            staking.startDate = Date.now();
+            staking.endDate = Date.now();
+            staking.asset = asset;
+            staking.type = 2;
+            staking.gems = config.gems;
+
+            staking.save().then(() => {
+                NFT.findOne({tokenId: asset}, async(err, nft) => {
+                    nft.noOfGems += config.gems;
+                    nft.save().then(() => {
+                        flag = 1;
+                    });
+                })
+                
+            })
+        }
+        
+        itemsProcessed++;
+        if(itemsProcessed == array.length){
+            if(flag){
+                next(new OkResponse({message: 'Gems Claimed Successfully!'}))
+            }else{
+                next(new BadRequestResponse('Gems Already Claimed!'))
+            }
+        }
+    })
+})
 
 module.exports = router; 
