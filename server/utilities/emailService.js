@@ -36,12 +36,12 @@ const sendEmail = (mailDetails) => {
 
 const sendCouponEmail = async (email, name, coupon) => {
   sendEmail({
-    from: " HOL Notification <donotreply@HOL.com>",
+    from: "HoL Store",
     to: email,
-    subject: "HOL Email Verification",
+    subject: "HoL store notification",
     templateObj: {
-      emailText: `<p>Hi ${name}, Congratulations!. You have bought the coupon with number(s) ${coupon}.</p>
-       <p>Use this coupon to get discount on the store.</p>`,
+      emailText: `<p>Hi Legent, ${name}! You have purchased the a perk and your coupon number is: ${coupon}.</p>
+       <p>Use this coupon upon checkout.</p>`,
     },
   });
 };
