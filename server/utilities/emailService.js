@@ -42,7 +42,7 @@ const sendCouponEmail = async (email, name, coupon) => {
     templateObj: {
       emailText: `<p>Hi Legent, ${name}! You have purchased the a perk and your coupon number is: ${coupon}.</p>
        <p>Use this coupon upon checkout.</p>
-       <p>The is for testing purposes only.</p>`,
+       <p>This is for testing purposes only.</p>`,
     },
   });
 };
