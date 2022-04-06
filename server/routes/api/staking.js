@@ -101,43 +101,62 @@ router.post('/filter', async (req, res, next) => {
     })
 });
 
-router.post('/claim', auth.required, auth.user, (req, res, next) => {
-    let flag = false;
-    let userNFTs = req.body.userAssets;
-    userNFTs = userNFTs.map(asset => {return asset.token_id});
-    let itemsProcessed = 0;
-    userNFTs.forEach(async (asset, index, array) => {
-        let record = await Staking.findOne({asset: asset, type: 2})
-        if(!record) {
-            flag = true;
-            let config = await Config.findOne({days: -1})
-            let staking = new Staking();
-            staking.startDate = Date.now();
-            staking.endDate = Date.now();
-            staking.asset = asset;
-            staking.type = 2;
-            staking.gems = config.gems;
+router.post('/claim', auth.required, auth.user, async (req, res, next) => {
+    const CLAIM_TYPE = 2;
 
-            staking.save().then(() => {
-                NFT.findOne({tokenId: asset}, async(err, nft) => {
-                    nft.noOfGems += config.gems;
-                    nft.save().then(() => {
-                        flag = 1;
-                    });
-                })
-                
-            })
+    try {
+        const userNFTs = req.body.userAssets.map(asset => asset.token_id); //TODO: query on server
+        const config = await Config.findOne({days: -1})
+
+        if (!config) {
+            console.error('claim config not found')
+            next(new BadRequestResponse('Internal error'))
+            return    
         }
-        
-        itemsProcessed++;
-        if(itemsProcessed == array.length){
-            if(flag){
-                next(new OkResponse({message: 'Gems Claimed Successfully!'}))
-            }else{
-                next(new BadRequestResponse('Gems Already Claimed!'))
+
+        let foundOne = false;
+
+        for await (var tokenId of userNFTs) {
+            let stakingRecord = await Staking.findOne({asset: tokenId, type: 2})
+            
+            if(stakingRecord) {
+                console.log('claim: stake exists for token', tokenId);
+                continue;
+            }
+
+            foundOne = true;
+
+            let newStakingRecord = new Staking();
+            newStakingRecord.startDate = Date.now();
+            newStakingRecord.endDate = Date.now();
+            newStakingRecord.asset = tokenId;
+
+            newStakingRecord.type = CLAIM_TYPE;
+            newStakingRecord.gems = config.gems;
+
+            await newStakingRecord.save();
+
+            const nft = await NFT.findOne({ tokenId });
+
+            if (nft) {
+                nft.noOfGems += config.gems;
+                await nft.save();
+            } else { 
+                console.log('claim: missing token', tokenId);
             }
         }
-    })
+
+        if(foundOne){
+            console.log('clain: done for user', req.user.walletAddress)
+            next(new OkResponse({message: 'Gems Claimed Successfully!'}))
+        }else{
+            console.log('clain: not done for user', req.user.walletAddress)
+            next(new BadRequestResponse('Gems Already Claimed!'))
+        }
+    } catch (e) {
+        console.error("claim: error", e)
+        next(new BadRequestResponse('Internal error'))
+    }
 })
 
 module.exports = router; 
