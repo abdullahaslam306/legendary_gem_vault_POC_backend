@@ -22,6 +22,11 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
     let quantityArray = [];
     perks.forEach((perk, index, array) => {
         Perk.findOne({_id: perk.id}, (err, result) => {
+            if (!result) {
+                console.log("perk not found for ", perk.id);
+            }
+
+            
             // totalQty += Number(perk.quantity);
             quantityArray.push({
                 perk: perk.id,
