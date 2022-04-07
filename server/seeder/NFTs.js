@@ -2,6 +2,11 @@ const Moralis = require('moralis/node');
 require('../models/NFT');
 let mongoose = require("mongoose");
 let NFT = mongoose.model("NFT");
+let { createAlchemyWeb3 } = require('@alch/alchemy-web3');
+const web3 = createAlchemyWeb3(
+    "https://eth-mainnet.alchemyapi.io/v2/demo",
+);
+
 
 
 mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
@@ -16,12 +21,12 @@ mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
     .then((connection) => {
         console.log("Connected to DB in development environment");
         seedNFTs();
+        // seedTraits();
         // checkMissing();
     });
 
 
 seedNFTs = async () => {
-    let nfts = [];
     console.log('Seeding NFTs to the Database...');
     await Moralis.start({ serverUrl: "https://rpc11whc2ogq.usemoralis.com:2053/server", appId: "iNsfWaO6RE0vRpBkcPQN2JmOdSm94lMKnaAu2bMV" });
     for(let i = 0;i <= 9500;i=i+500) {
@@ -60,4 +65,21 @@ checkMissing = async () => {
         }
     }
     console.log("That's IT");
-}   
+}
+
+seedTraits = async () => {
+    console.log("Fetching Metadata for a crypto HoL NFT...");
+    for(let i = 0;i < 9993;i++){
+        const response = await web3.alchemy.getNftMetadata({
+            contractAddress: "0x8c714199d2ea08cc1f1f39a60f5cd02ad260a1e3",
+            tokenId: i
+        })
+        NFT.findOne({tokenId: i}).then((result) => {
+            result.traits = response.metadata.attributes;
+            result.save().then(() => {
+
+            })
+        })
+    }
+    console.log('Traits Seeded!');
+}

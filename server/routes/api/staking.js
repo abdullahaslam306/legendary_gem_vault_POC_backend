@@ -2,6 +2,7 @@ let router = require('express').Router();
 let mongoose = require("mongoose");
 let Staking = mongoose.model('Staking');
 let NFT = mongoose.model('NFT');
+let Config = mongoose.model('Config');
 let moment = require('moment');
 let httpResponse = require('express-http-response');
 let OkResponse = httpResponse.OkResponse;
@@ -99,5 +100,63 @@ router.post('/filter', async (req, res, next) => {
         }
     })
 });
+
+router.post('/claim', auth.required, auth.user, async (req, res, next) => {
+    const CLAIM_TYPE = 2;
+
+    try {
+        const userNFTs = req.body.userAssets.map(asset => asset.token_id); //TODO: query on server
+        const config = await Config.findOne({days: -1})
+
+        if (!config) {
+            console.error('claim config not found')
+            next(new BadRequestResponse('Internal error'))
+            return    
+        }
+
+        let foundOne = false;
+
+        for await (var tokenId of userNFTs) {
+            let stakingRecord = await Staking.findOne({asset: tokenId, type: 2})
+            
+            if(stakingRecord) {
+                console.log('claim: stake exists for token', tokenId);
+                continue;
+            }
+
+            foundOne = true;
+
+            let newStakingRecord = new Staking();
+            newStakingRecord.startDate = Date.now();
+            newStakingRecord.endDate = Date.now();
+            newStakingRecord.asset = tokenId;
+
+            newStakingRecord.type = CLAIM_TYPE;
+            newStakingRecord.gems = config.gems;
+
+            await newStakingRecord.save();
+
+            const nft = await NFT.findOne({ tokenId });
+
+            if (nft) {
+                nft.noOfGems += config.gems;
+                await nft.save();
+            } else { 
+                console.log('claim: missing token', tokenId);
+            }
+        }
+
+        if(foundOne){
+            console.log('clain: done for user', req.user.walletAddress)
+            next(new OkResponse({message: 'Gems Claimed Successfully!'}))
+        }else{
+            console.log('clain: not done for user', req.user.walletAddress)
+            next(new BadRequestResponse('Gems Already Claimed!'))
+        }
+    } catch (e) {
+        console.error("claim: error", e)
+        next(new BadRequestResponse('Internal error'))
+    }
+})
 
 module.exports = router; 

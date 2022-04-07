@@ -5,7 +5,11 @@ let NFTSchema = new mongoose.Schema({
     address: {type: String},
     tokenId: {type: String},
     tokenUri: {type: String},
-    noOfGems: {type: Number, default: 0}
+    noOfGems: {type: Number, default: 0},
+    traits: [{
+        value: {type: String},
+        trait_type: {type: String}
+    }]
 }, {timestamps: true});
 
 NFTSchema.set('toJSON', {
