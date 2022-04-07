@@ -9,7 +9,8 @@ let NFTSchema = new mongoose.Schema({
     traits: [{
         value: {type: String},
         trait_type: {type: String}
-    }]
+    }],
+    "_id" : {type:[mongoose.Schema.Types.ObjectId]}
 }, {timestamps: true});
 
 NFTSchema.plugin(mongoosePaginate);
