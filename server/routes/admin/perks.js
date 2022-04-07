@@ -2,7 +2,7 @@ let router = require('express').Router();
 let mongoose = require("mongoose");
 let Perk = mongoose.model('Perk');
 let httpResponse = require('express-http-response');
-
+let OkResponse = httpResponse.BadRequestResponse;
 let BadRequestResponse = httpResponse.BadRequestResponse;
 
 
@@ -12,6 +12,8 @@ router.post('/', (req, res, next) => {  //There will be an auth middleware to ch
     perk.image = req.body.image;
     perk.price = req.body.price;
     perk.quantity = req.body.quantity;
+    perk.showOnTop = req.body.showOnTop;
+    perk.type = req.body.type;
 
     perk.save().then(() => {
                res.json(perk)
@@ -72,7 +74,12 @@ router.put("/:id",(req, res, next) => {
     if(req.body.quantity) {
         dataToUpdate.quantity = req.body.quantity;
     }
-    
+    if(req.body.showOnTop) {
+        dataToUpdate.showOnTop = req.body.showOnTop;
+    }
+    if(req.body.type) {
+        dataToUpdate.type = req.body.type;
+    }
     
     Perk.findOneAndUpdate({ _id: req.params.id }, dataToUpdate )
     .then(success => {
@@ -85,5 +92,20 @@ router.put("/:id",(req, res, next) => {
     })
 
 })
+
+router.delete('/:id',(req, res, next) => {
+    if(req.params.id) {
+        Perk.findByIdAndRemove(req.params.id).then (success => {
+            next(new OkResponse({message:"Perk removed successfully"}))
+        })
+    }
+    else {
+        return res
+        .status(400)
+        .send({ error: 'User id not provided.' });
+    }
+
+})
+
 
 module.exports = router;
