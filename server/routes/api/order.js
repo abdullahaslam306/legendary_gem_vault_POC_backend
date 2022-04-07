@@ -48,9 +48,10 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
                 for(let i = 0;i < perks.length;i++) {
                     if(perks[i].type == 1){
                         for(let j = 0;j < Number(perks[i].quantity);j++) {
-                            Coupon.findOneAndUpdate({perk: perks[i].id, used: false},{used: true},{returnNewDocument:true}, (err, result) => {
-                                sendCouponEmail(req.body.email, req.body.name, result.coupon);
-                            });
+                            // Coupon.findOneAndUpdate({perk: perks[i].id, used: false},{used: true},{returnNewDocument:true}, (err, result) => {
+                            //     sendCouponEmail(req.body.email, req.body.name, result.coupon);
+                            // });
+                            sendCouponEmail(req.body.email, req.body.name, 'testing-coupon');
                         }
                     }
                 }
