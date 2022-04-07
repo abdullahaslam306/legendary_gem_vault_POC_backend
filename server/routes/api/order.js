@@ -25,6 +25,7 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
             if (!result) {
                 console.log("perk not found for ", perk.id);
             }
+
             
             // totalQty += Number(perk.quantity);
             quantityArray.push({
