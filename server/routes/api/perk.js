@@ -58,7 +58,10 @@ router.get('/', (req, res, next) => {
                 next(new OkResponse({perks: result}));
             }
         });
-    }catch(err) {console.log(err);}
+    }catch(err) {
+        console.error(err);
+        next(new BadRequestResponse({err: err}));
+    }
 });
 
 module.exports = router;
