@@ -77,14 +77,12 @@ seedPerks = async() => {
         perk.showOnTop = showOnTop[i];
 
         perk.save().then(async () => {
-            if(type[i] == 1){
-                for(let j = 0;j < quantity[i];j++){
-                    let coupon = new Coupon();
-                    coupon.sold = false;
-                    coupon.coupon = Math.floor(Math.random() * 9999).toString();
-                    coupon.perk = perk.slug;
-                    await coupon.save();
-                }
+            for(let j = 0;j < quantity[i];j++){
+                let coupon = new Coupon();
+                coupon.sold = false;
+                coupon.coupon = Math.floor(Math.random() * 9999).toString();
+                coupon.perk = perk.slug;
+                await coupon.save();
             }
         });
     }

@@ -31,10 +31,30 @@ router.get('/', (req, res, next) => {
             query.price = { $lte: req.query.gems };
         }
  
-        Perk.paginate(query, options, (err, result) => {
+        Perk.paginate(query, options, async(err, result) => {
             if(err) {
                 next(new BadRequestResponse({err: err}));
             }else{
+                let allPerks = result.docs.map(doc => doc.slug);
+                console.log(allPerks);
+                for await(let perkSlug of allPerks) {
+                    let soldCount = await Coupon.countDocuments({perk: perkSlug, used: true});
+                    let qtyCount = await Coupon.countDocuments({perk: perkSlug, used: false}); //Remaining Quantity
+                    
+                    let index = result.docs.map(doc => doc.slug).indexOf(perkSlug);
+                    const newObj = {
+                        _id: result.docs[index]._id,
+                        showOnTop: result.docs[index].showOnTop,
+                        description: result.docs[index].description,
+                        image: result.docs[index].image,
+                        price: result.docs[index].price,
+                        type: result.docs[index].type,
+                        slug: result.docs[index].slug,
+                        sold: soldCount,
+                        left: qtyCount
+                    }
+                    result.docs[index] = newObj;
+                }
                 next(new OkResponse({perks: result}));
             }
         });
