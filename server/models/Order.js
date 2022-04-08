@@ -7,7 +7,7 @@ let OrderSchema = new mongoose.Schema({
     date: {type: Date},
     quantityArray: {type:[{
         quantity: {type: Number},
-        perk: {type: mongoose.Schema.Types.ObjectId, ref: 'Perk'}
+        perk: {type: String} //slug of the perk
     }], default:[]},
     name: {type: String},
     discord: {type: String},

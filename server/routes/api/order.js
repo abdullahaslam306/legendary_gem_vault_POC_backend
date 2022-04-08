@@ -21,15 +21,15 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
     let totalQty = 0;
     let quantityArray = [];
     perks.forEach((perk, index, array) => {
-        Perk.findOne({_id: perk.id}, (err, result) => {
+        Perk.findOne({slug: perk.slug}, (err, result) => {
             if (!result) {
-                console.log("perk not found for ", perk.id);
+                console.log("perk not found for ", perk.slug);
             }
 
             
             // totalQty += Number(perk.quantity);
             quantityArray.push({
-                perk: perk.id,
+                perk: perk.slug,
                 quantity: Number(perk.quantity)
             })
             if((Number(result.quantity) - Number(perk.quantity)) <= 0){
@@ -53,7 +53,7 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
                 for(let i = 0;i < perks.length;i++) {
                     if(perks[i].type == 1){
                         for(let j = 0;j < Number(perks[i].quantity);j++) {
-                            // Coupon.findOneAndUpdate({perk: perks[i].id, used: false},{used: true},{returnNewDocument:true}, (err, result) => {
+                            // Coupon.findOneAndUpdate({perk: perks[i].slug, used: false},{used: true},{returnNewDocument:true}, (err, result) => {
                             //     sendCouponEmail(req.body.email, req.body.name, result.coupon);
                             // });
                             sendCouponEmail(req.body.email, req.body.name, 'testing-coupon');
@@ -62,7 +62,7 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
                 }
 
                 for(let i = 0;i < perks.length;i++) {
-                    Perk.findOne({_id: perks[i].id}, async(err, result) => {
+                    Perk.findOne({slug: perks[i].slug}, async(err, result) => {
                         result.quantity -= Number(perks[i].quantity);
                         await result.save();
                     })
