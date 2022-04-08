@@ -1,6 +1,7 @@
 let router = require('express').Router();
 let mongoose = require("mongoose");
 let Perk = mongoose.model('Perk');
+let Coupon= mongoose.model('Coupon');
 let httpResponse = require('express-http-response');
 let OkResponse = httpResponse.OkResponse;
 let ForbiddenResponse = httpResponse.ForbiddenResponse;

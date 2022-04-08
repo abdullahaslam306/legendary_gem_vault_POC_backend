@@ -8,6 +8,7 @@ let Coupon = mongoose.model('Coupon');
 let httpResponse = require('express-http-response');
 let OkResponse = httpResponse.OkResponse;
 let BadRequestResponse = httpResponse.BadRequestResponse;
+let NotFoundResponse = httpResponse.NotFoundResponse;
 let auth = require('../../middlewares/auth');
 const {
     sendCouponEmail
@@ -33,7 +34,7 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
                 quantity: Number(perk.quantity)
             })
             if((Number(result.quantity) - Number(perk.quantity)) <= 0){
-                next(new BadRequestResponse(422.1, 'One of the requested Perk is out of stock!'));
+                next(new NotFoundResponse('Requested Perk is out of stock'))
                 return;
             }
 
