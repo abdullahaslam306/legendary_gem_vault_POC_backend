@@ -33,7 +33,7 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
                 perk: perk.slug,
                 quantity: Number(perk.quantity)
             })
-            if((Number(result.quantity) - Number(perk.quantity)) <= 0){
+            if((Number(result.quantity) - Number(perk.quantity)) < 0){
                 next(new NotFoundResponse('Requested Perk is out of stock'))
                 return;
             }
@@ -53,14 +53,14 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
 
 
                 for(let i = 0;i < perks.length;i++) {
-                    if(perks[i].type == 1){
-                        for(let j = 0;j < Number(perks[i].quantity);j++) {
-                            Coupon.findOneAndUpdate({perk: perks[i].slug, used: false},{used: true},{returnNewDocument:true}, (err, result) => {
+                    for(let j = 0;j < Number(perks[i].quantity);j++) {
+                        Coupon.findOneAndUpdate({perk: perks[i].slug, used: false},{used: true},{returnNewDocument:true}, (err, result) => {
+                            if(perks[i].type == 1){
                                 sendCouponEmail(req.body.email, req.body.name, result.coupon);
-                            });
-                            // sendCouponEmail(req.body.email, req.body.name, 'testing-coupon');
-                        }
-                    }
+                            }
+                        });
+                        // sendCouponEmail(req.body.email, req.body.name, 'testing-coupon');
+                    } 
                 }
 
                 for(let i = 0;i < perks.length;i++) {
