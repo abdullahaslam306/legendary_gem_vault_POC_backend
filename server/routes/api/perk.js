@@ -36,7 +36,7 @@ router.get('/', (req, res, next) => {
                 next(new BadRequestResponse({err: err}));
             }else{
                 let allPerks = result.docs.map(doc => doc.slug);
-                console.log(allPerks);
+                
                 for await(let perkSlug of allPerks) {
                     let soldCount = await Coupon.countDocuments({perk: perkSlug, used: true});
                     let qtyCount = await Coupon.countDocuments({perk: perkSlug, used: false}); //Remaining Quantity
