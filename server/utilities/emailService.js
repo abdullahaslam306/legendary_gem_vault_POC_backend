@@ -24,10 +24,9 @@ const sendEmail = async (mailDetails) => {
       subject: mailDetails.subject,
       html: template(mailDetails.templateObj)
       });
-    return true;
+
   } catch (error) {
     console.error('error sending email:' ,error);
-    return false;
   }
 };
 const sendCouponEmail = async (email, name, coupon) => {
