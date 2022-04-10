@@ -1,5 +1,5 @@
 #!/bin/bash
 
 cd /opt/app/backend
-sudo npm install
+sudo npm install --no-audit
 sudo pm2 start app.js

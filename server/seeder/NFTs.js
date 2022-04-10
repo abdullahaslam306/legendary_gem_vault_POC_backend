@@ -20,8 +20,8 @@ mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
     })
     .then((connection) => {
         console.log("Connected to DB in development environment");
-        // seedNFTs();
-        seedTraits();
+        seedNFTs();
+        // seedTraits();
         // checkMissing();
     });
 
@@ -68,7 +68,7 @@ checkMissing = async () => {
 }
 
 seedTraits = async () => {
-    console.log("Fetching Metadata for a crypto HOL NFT...");
+    console.log("Fetching Metadata for a crypto HoL NFT...");
     for(let i = 0;i < 9993;i++){
         const response = await web3.alchemy.getNftMetadata({
             contractAddress: "0x8c714199d2ea08cc1f1f39a60f5cd02ad260a1e3",
@@ -82,9 +82,4 @@ seedTraits = async () => {
         })
     }
     console.log('Traits Seeded!');
-    // const response = await web3.alchemy.getNftMetadata({
-    //     contractAddress: "0x8c714199d2ea08cc1f1f39a60f5cd02ad260a1e3",
-    //     tokenId: "1025"
-    // })
-    // console.log(response.metadata.attributes);
 }
