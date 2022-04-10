@@ -3,37 +3,33 @@ const fs = require("fs");
 const path = require("path");
 const Handlebars = require("handlebars");
 const smtpAuth = require("../config").smtpAuth;
+const AWS = require('aws-sdk')
 
-const sendEmail = (mailDetails) => {
+const sendEmail = async (mailDetails) => {
+    const ses = new AWS.SES({region: 'us-west-1'});
 
   const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth:{
-      user: 'thegemvault.store@gmail.com', //Will come from env later
-      pass: 'Association50!@#', //Will Come from env
-    },
+    SES: ses,
   });
-  // Open template file
-  var source = fs.readFileSync(
+
+  try {
+     var source = fs.readFileSync(
     path.join(__dirname, "../templates/email.hbs"),
     "utf8"
   );
-  // Create email generator
-  var template = Handlebars.compile(source);
-
-  transporter.sendMail(
-    { ...mailDetails, html: template(mailDetails.templateObj)},
-    function (err, info) {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log("Email sent", info);
-      }
-    }
-  );
+   var template = Handlebars.compile(source);
+    await transporter.sendMail({
+      from: 'store@gems.houseoflegends.io', 
+      to: mailDetails.to,
+      subject: mailDetails.subject,
+      html: template(mailDetails.templateObj)
+      });
+    return true;
+  } catch (error) {
+    console.error('error sending email:' ,error);
+    return false;
+  }
 };
-
-
 const sendCouponEmail = async (email, name, coupon) => {
   sendEmail({
     from: "HoL Store",
@@ -46,7 +42,6 @@ const sendCouponEmail = async (email, name, coupon) => {
     },
   });
 };
-
 
 module.exports = {
   sendCouponEmail,
