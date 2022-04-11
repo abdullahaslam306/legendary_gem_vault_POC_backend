@@ -48,8 +48,13 @@ router.get('/', auth.required, auth.user, async(req, res, next) => {
     }
 });
 
+router.get('/record', auth.required, auth.user, async (req, res, next) => {
+    let record = await Claim.findOne({walletAddress: req.user.walletAddress});
+    if(record){
+        next(new OkResponse({record: record}));
+    }else{
+        next(new BadRequestResponse('Claim Record Not Found'));
+    }
+})
 
-// walletAddress: {type: String, unique: true},
-// hasClaimed: {type: Boolean},
-// gems: {type: Number},
 module.exports = router;

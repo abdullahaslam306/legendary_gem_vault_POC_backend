@@ -3,6 +3,7 @@ let mongoose = require("mongoose");
 let Perk = mongoose.model('Perk');
 let Order = mongoose.model('Order');
 let NFT = mongoose.model('NFT');
+let Claim = mongoose.model('Claim');
 let OrderAsset = mongoose.model('OrderAsset');
 let Coupon = mongoose.model('Coupon');
 let httpResponse = require('express-http-response');
@@ -71,6 +72,11 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
                 }
 
                 order.save().then( async() => {
+                    if(req.body.claimDeduction != 0){
+                        let userClaimRecord = await Claim.findOne({walletAddress: req.user.walletAddress});
+                        userClaimRecord.usedGems += req.body.claimDeduction;
+                        await userClaimRecord.save();
+                    }
                     for(let i = 0;i < deductions?.length;i++){
                         NFT.findOne({tokenId: deductions[i].asset}, async(err, nft) => {
                             nft.noOfGems -= Number(deductions[i].amount);

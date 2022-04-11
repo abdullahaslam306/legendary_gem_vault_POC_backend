@@ -5,6 +5,7 @@ let uniqueValidator = require("mongoose-unique-validator");
 let ClaimSchema = new mongoose.Schema({
     walletAddress: {type: String, unique: true},
     gems: {type: Number},
+    usedGems: {type: Number, default: 0},
 }, {timestamps: true});
 
 ClaimSchema.plugin(mongoosePaginate);
