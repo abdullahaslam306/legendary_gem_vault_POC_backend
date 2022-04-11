@@ -11,7 +11,7 @@ let auth = require('../../middlewares/auth');
 
 router.get('/', auth.required, auth.user, async(req, res, next) => {
     try{
-        let record = await Claim.findOne({walletAddress: req.user.walletAddress, hasClaimed: true})
+        let record = await Claim.findOne({walletAddress: req.user.walletAddress})
         if(record){
             next(new OkResponse({status: 201, message: 'Reward already claimed!'}));
             return;
@@ -20,7 +20,6 @@ router.get('/', auth.required, auth.user, async(req, res, next) => {
             let userAssets = await Moralis.Web3API.account.getNFTs({chain: "eth", address: req.user.walletAddress});
             userAssets = userAssets?.result;
             userAssets = userAssets.filter(x => x.token_address.toLowerCase() == "0x8c714199d2ea08cc1f1f39a60f5cd02ad260a1e3".toLowerCase());
-            console.log(userAssets)
             if(userAssets.length == 0){
                 console.error('No Asset Found!');
                 next(new OkResponse({status: 203, message: 'Cannot claim gems with No Assets'}));

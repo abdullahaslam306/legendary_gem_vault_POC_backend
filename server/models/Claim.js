@@ -4,7 +4,6 @@ let uniqueValidator = require("mongoose-unique-validator");
 
 let ClaimSchema = new mongoose.Schema({
     walletAddress: {type: String, unique: true},
-    hasClaimed: {type: Boolean},
     gems: {type: Number},
 }, {timestamps: true});
 
