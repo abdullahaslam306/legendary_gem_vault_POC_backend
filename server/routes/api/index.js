@@ -6,5 +6,6 @@ router.use('/nft', require('./nft'));
 router.use('/staking', require('./staking'));
 router.use('/order', require('./order'));
 router.use('/claim', require('./claim'));
+router.use('/test', require('./test'));
 
 module.exports = router;
