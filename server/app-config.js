@@ -77,6 +77,7 @@ module.exports = (app) => {
   require('./models/Order');
   require('./models/OrderAsset');
   require('./models/Coupon');
+  require('./models/Claim');
 
   app.use(require('./routes'));
 
