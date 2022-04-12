@@ -74,7 +74,7 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
                 order.save().then( async() => {
                     if(req.body.claimDeduction != 0){
                         let userClaimRecord = await Claim.findOne({walletAddress: req.user.walletAddress});
-                        userClaimRecord.usedGems += req.body.claimDeduction;
+                        userClaimRecord.usedGems += Number(req.body.claimDeduction);
                         await userClaimRecord.save();
                     }
                     for(let i = 0;i < deductions?.length;i++){
