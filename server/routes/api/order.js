@@ -15,21 +15,32 @@ const {
     sendCouponEmail
 } = require('../../utilities/emailService');
 
-router.post('/', auth.required, auth.user, (req, res, next) => {
+router.post('/', auth.required, auth.user, async (req, res, next) => {
     let deductions = req.body.deductions;
     let perks = req.body.perks;
-    // let perksIds = perks.map(perk => {return perk.id});
     let itemsProcessed = 0;
-    let totalQty = 0;
+    let claimDeduction = 0;
+    let totalPrice = 0;
+    let rewardGems = 0;
+    let deductionFromNFTs = 0;
     let quantityArray = [];
+
+    let temp = await Claim.findOne({walletAddress: req.user.walletAddress});
+    if(temp){
+        rewardGems = temp.gems - temp.usedGems;
+    }
+
+    for(let i = 0;i < deductions?.length;i++){
+        deductionFromNFTs += Number(deductions[i].amount)
+    }
     perks.forEach((perk, index, array) => {
         Perk.findOne({slug: perk.slug}, (err, result) => {
             if (!result) {
                 console.log("perk not found for ", perk.slug);
             }
 
-            
-            // totalQty += Number(perk.quantity);
+            totalPrice += (perk.quantity * perk.price);
+
             quantityArray.push({
                 perk: perk.slug,
                 quantity: Number(perk.quantity)
@@ -41,6 +52,9 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
 
             itemsProcessed++;
             if(itemsProcessed == array.length){
+
+                claimDeduction = totalPrice - deductionFromNFTs;
+
                 let order = new Order();
                 order.name = req.body.name;
                 order.discord = req.body.discord;
@@ -72,9 +86,9 @@ router.post('/', auth.required, auth.user, (req, res, next) => {
                 }
 
                 order.save().then( async() => {
-                    if(req.body.claimDeduction != 0){
+                    if(claimDeduction != 0){
                         let userClaimRecord = await Claim.findOne({walletAddress: req.user.walletAddress});
-                        userClaimRecord.usedGems += Number(req.body.claimDeduction);
+                        userClaimRecord.usedGems += Number(claimDeduction);
                         await userClaimRecord.save();
                     }
                     for(let i = 0;i < deductions?.length;i++){
