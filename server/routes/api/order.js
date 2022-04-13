@@ -90,7 +90,7 @@ router.post('/', auth.required, auth.user, async (req, res, next) => {
                         if(claimDeduction != 0){
                             let userClaimRecord = await Claim.findOne({walletAddress: req.user.walletAddress});
                             if(userClaimRecord){
-                                if((userClaimRecord.usedGems += Number(claimDeduction) <= userClaimRecord.gems)){
+                                if((userClaimRecord.usedGems + Number(claimDeduction) <= userClaimRecord.gems)){
                                     userClaimRecord.usedGems += Number(claimDeduction);
                                     await userClaimRecord.save();
                                 }else{
