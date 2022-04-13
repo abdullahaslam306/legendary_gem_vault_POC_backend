@@ -8,6 +8,8 @@ let httpResponse = require('express-http-response');
 let OkResponse = httpResponse.OkResponse;
 let ForbiddenResponse = httpResponse.ForbiddenResponse;
 let BadRequestResponse = httpResponse.BadRequestResponse;
+const Moralis = require('moralis/node');
+
 
 let auth = require('../../middlewares/auth');
 
@@ -82,6 +84,7 @@ router.post('/filter', async (req, res, next) => {
     let stakedNFTsArray = [];
     let unstakedNFTsArray = [];
     let itemsProcessed = 0;
+    
     userNFTs.forEach(async (nft, index, array) => {
         if(allStakedNFTs.indexOf(nft) != -1){
             let temp = await Staking.findOne({asset: nft, endDate: null});
@@ -100,6 +103,29 @@ router.post('/filter', async (req, res, next) => {
         }
     })
 });
+
+router.post('/filter-nfts', auth.required, auth.user, async (req, res, next) => {
+    await Moralis.start({ serverUrl: "https://rpc11whc2ogq.usemoralis.com:2053/server", appId: "iNsfWaO6RE0vRpBkcPQN2JmOdSm94lMKnaAu2bMV" });
+    let userAssets = await Moralis.Web3API.account.getNFTs({chain: "goerli", address: req.user.walletAddress});
+    userAssets = userAssets?.result;
+    userAssets = userAssets.filter(x => x.token_address.toLowerCase() == "0x0D731c7D2247d53a22cE8848F62908991883CF0B".toLowerCase());  
+    //0x8c714199d2ea08cc1f1f39a60f5cd02ad260a1e3  (Mainnet NFT Collection Smart Contract Address)
+
+    userAssets = userAssets.map(x => x.token_id);
+    userAssets = userAssets.filter((el) => {
+        return !req.body.stakedAssets.includes( el );
+    });
+    let allTokenIds = userAssets.concat(req.body.stakedAssets);
+    let unstakedNFTsArray = await NFT.find({tokenId: {$in: userAssets}});
+    let stakedNFTsArray = await Staking.find({asset: {$in: req.body.stakedAssets}, endDate: null});
+    let allNFTs = await NFT.find({tokenId: {$in: allTokenIds}});
+    
+    next(new OkResponse({
+        allNFTs: allNFTs,
+        stakedNFTs: stakedNFTsArray, 
+        unstakedNFTs: unstakedNFTsArray
+    }));
+})
 
 router.post('/claim', auth.required, auth.user, async (req, res, next) => {
     const CLAIM_TYPE = 2;
