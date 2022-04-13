@@ -89,8 +89,17 @@ router.post('/', auth.required, auth.user, async (req, res, next) => {
                     order.save().then( async() => {
                         if(claimDeduction != 0){
                             let userClaimRecord = await Claim.findOne({walletAddress: req.user.walletAddress});
-                            userClaimRecord.usedGems += Number(claimDeduction);
-                            await userClaimRecord.save();
+                            if(userClaimRecord){
+                                if((userClaimRecord.usedGems += Number(claimDeduction) <= userClaimRecord.gems)){
+                                    userClaimRecord.usedGems += Number(claimDeduction);
+                                    await userClaimRecord.save();
+                                }else{
+                                    next(new OkResponse({status: 403}));
+                                }
+                            }else{
+                                next(new OkResponse({status: 403}));
+                            }
+                            
                         }
                         for(let i = 0;i < deductions?.length;i++){
                             NFT.findOne({tokenId: deductions[i].asset}, async(err, nft) => {
