@@ -119,7 +119,7 @@ router.post('/filter-nfts', auth.required, auth.user, async (req, res, next) => 
     let unstakedNFTsArray = await NFT.find({tokenId: {$in: userAssets}});
     let stakedNFTsArray = await Staking.find({asset: {$in: req.body.stakedAssets}, endDate: null});
     let allNFTs = await NFT.find({tokenId: {$in: allTokenIds}});
-    
+
     next(new OkResponse({
         allNFTs: allNFTs,
         stakedNFTs: stakedNFTsArray, 
@@ -128,7 +128,6 @@ router.post('/filter-nfts', auth.required, auth.user, async (req, res, next) => 
 })
 
 router.post('/claim', auth.required, auth.user, async (req, res, next) => {
-    const CLAIM_TYPE = 2;
 
     try {
         const userNFTs = req.body.userAssets.map(asset => asset.token_id); //TODO: query on server
@@ -157,7 +156,6 @@ router.post('/claim', auth.required, auth.user, async (req, res, next) => {
             newStakingRecord.endDate = Date.now();
             newStakingRecord.asset = tokenId;
 
-            newStakingRecord.type = CLAIM_TYPE;
             newStakingRecord.gems = config.gems;
 
             await newStakingRecord.save();

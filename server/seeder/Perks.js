@@ -4,6 +4,8 @@ require('../models/Coupon');
 let mongoose = require("mongoose");
 let Perk = mongoose.model('Perk');
 let Coupon = mongoose.model('Coupon');
+let {PERK_TYPE} = require('../constants/constants');
+
 
 
 mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
@@ -63,7 +65,7 @@ seedPerks = async() => {
         'https://legendary-perks.s3.us-west-1.amazonaws.com/Raffle-Ticket-APE.png',
     ]
 
-    let type = [2, 1, 1, 1, 1, 2, 2, 2, 2, 2,];
+    let type = [PERK_TYPE.COIN, PERK_TYPE.COUPON, PERK_TYPE.COUPON, PERK_TYPE.COUPON, PERK_TYPE.COUPON, PERK_TYPE.COIN, PERK_TYPE.COIN, PERK_TYPE.COIN, PERK_TYPE.COIN, PERK_TYPE.COIN,];
 
     let showOnTop = [ true, true, true, false, false, false, false, false, false, false]
 

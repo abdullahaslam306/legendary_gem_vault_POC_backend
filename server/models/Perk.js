@@ -1,6 +1,7 @@
 let mongoose = require("mongoose");
 const mongoosePaginate = require('mongoose-paginate-v2');
 let slug = require('slug');
+let {PERK_TYPE} = require('../constants/constants')
 
 let PerkSchema = new mongoose.Schema({
     slug: { type: String, lowercase: true, unique: true },
@@ -8,12 +9,9 @@ let PerkSchema = new mongoose.Schema({
     image: {type: String},  //string of image url
     price: {type: Number},  //Price in No. of gems
     type: {
-        type: Number,
-        enum: [
-            1,  //Coupon
-            2,  //Coin
-        ]
-    },  // For future use
+        type: String,
+        enum: Object.values(PERK_TYPE),
+    },  // Type can be Coin OR Coupon
     quantity: {type: Number}, //Total number of items available for this particular Perk
     showOnTop: {type: Boolean, default: false}, 
 }, {timestamps: true});
