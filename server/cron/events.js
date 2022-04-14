@@ -15,7 +15,7 @@ const listStakedEvents = async () => {
     let results = await query.find();
     results = results.map(doc => doc.attributes);
     for await (let doc of results) {
-        let record = await Event.findOne({tokenIds: doc.tokenIds, block_timestamp: doc.block_timestamp});
+        let record = await Event.findOne({tokenIds: doc.tokenIds, block_timestamp: doc.block_timestamp, eventType: EVENT_TYPE.STAKED});
         if(!record){
             console.log('Staked Record Inserted In DB!');
             let event = new Event();
@@ -39,7 +39,7 @@ const listUnstakedEvents = async () => {
     let results = await query.find();
     results = results.map(doc => doc.attributes);
     for await (let doc of results) {
-        let record = await Event.findOne({tokenIds: doc.tokenIds, block_timestamp: doc.block_timestamp});
+        let record = await Event.findOne({tokenIds: doc.tokenIds, block_timestamp: doc.block_timestamp, eventType: EVENT_TYPE.UNSTAKED});
         if(!record){
             console.log('Unstaked Record Inserted In DB!');
             let event = new Event();
