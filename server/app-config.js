@@ -78,6 +78,9 @@ module.exports = (app) => {
   require('./models/OrderAsset');
   require('./models/Coupon');
   require('./models/Claim');
+  require('./models/Event');
+
+  // require('./cron/events')
 
   app.use(require('./routes'));
 

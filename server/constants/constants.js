@@ -3,6 +3,11 @@ const PERK_TYPE = {
     COUPON: "coupon",   
 };
 
+const EVENT_TYPE = {
+    STAKED: "Staked",
+    UNSTAKED: "Unstaked",   
+};
+
 const MORALIS = {
     serverUrl: "https://rpc11whc2ogq.usemoralis.com:2053/server",
     appId: "iNsfWaO6RE0vRpBkcPQN2JmOdSm94lMKnaAu2bMV"
@@ -22,5 +27,6 @@ module.exports = {
     MORALIS,
     NFT_CONTRACT_ADDRESS,
     CHAIN,
-    MORALIS_EVENTS
+    MORALIS_EVENTS,
+    EVENT_TYPE,
 }
