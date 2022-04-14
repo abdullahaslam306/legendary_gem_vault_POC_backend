@@ -1,4 +1,3 @@
-const Moralis = require('moralis/node');
 require('../models/Perk');
 require('../models/Coupon');
 let mongoose = require("mongoose");
