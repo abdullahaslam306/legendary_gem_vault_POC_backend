@@ -80,7 +80,7 @@ module.exports = (app) => {
   require('./models/Claim');
   require('./models/Event');
 
-  // require('./cron/events')
+  require('./cron/events')
 
   app.use(require('./routes'));
 
