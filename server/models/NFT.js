@@ -13,5 +13,4 @@ let NFTSchema = new mongoose.Schema({
 }, {timestamps: true});
 
 NFTSchema.plugin(mongoosePaginate);
-
 module.exports = mongoose.model("NFT", NFTSchema);
