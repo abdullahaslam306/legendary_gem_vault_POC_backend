@@ -39,8 +39,10 @@ const sendCouponEmail = async (email, name, perkName, coupon) => {
       <p>Hi ${name},</p>
       <p>This is a confirmation that you have purchased ${perkName} and your one-time coupon code is ${coupon}.</p>
        <p>Use this coupon at checkout in our Legendary Shop to redeem it for exciting discounts on exclusive HOL merch that you'll love! </p>
-       <button>Shop Now</button>
-       <p>You are a few clicks away from exploring the most Legendary store in the Metaverse. </p>`,
+       <a href='https://www.houseoflegends.art/shop'>Shop Now</a>
+       <p>You are a few clicks away from exploring the most Legendary store in the Metaverse. </p>
+       <p>Join us on  <a href='https://twitter.com/TheLegendsNFTs'>Twitter</a> | <a href='https://www.instagram.com/houseoflegends.nft/'>Instagram</a></p>
+       <p>Copyright<p>`,
     },
   });
 };
