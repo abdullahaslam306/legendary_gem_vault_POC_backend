@@ -51,7 +51,7 @@ seedPerks = async() => {
 
     let quantity = [15, 2, 2, 2, 2, 10, 10, 10, 10, 10];
 
-    let enabled = []
+    let enabled = [true, true, true, true, true, true, true, false, false, true];
 
     let image = [
         'https://legendary-perks.s3.us-west-1.amazonaws.com/CM_WL.png',
@@ -78,12 +78,22 @@ seedPerks = async() => {
         perk.type = type[i];
         perk.quantity = quantity[i];
         perk.showOnTop = showOnTop[i];
+        perk.enabled = enabled[i];
+        
 
         perk.save().then(async () => {
             for(let j = 0;j < quantity[i];j++){
                 let coupon = new Coupon();
                 coupon.sold = false;
-                coupon.coupon = Math.floor(Math.random() * 9999).toString();
+                if(i == 1){
+                    coupon.coupon = 'RTIFS1OEAP2';
+                }else if(i == 2){
+                    coupon.coupon = 'IECO9XAQN5X';
+                }else if(i == 3){
+                    coupon.coupon = 'PIV93DQOXM7';
+                }else if(i == 4){
+                    coupon.coupon = 'QRTV7ZE9MO1';
+                }
                 coupon.perk = perk.slug;
                 await coupon.save();
             }

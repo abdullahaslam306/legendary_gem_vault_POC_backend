@@ -30,6 +30,8 @@ router.get('/', (req, res, next) => {
         if (typeof req.query.gems !== undefined && req.query.gems && req.query.gems !== null) {
             query.price = { $lte: req.query.gems };
         }
+
+        query.enabled = true;
  
         Perk.paginate(query, options, async(err, result) => {
             if(err) {
