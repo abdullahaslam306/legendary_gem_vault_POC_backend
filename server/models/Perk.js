@@ -13,7 +13,8 @@ let PerkSchema = new mongoose.Schema({
         enum: Object.values(PERK_TYPE),
     },  // Type can be Coin OR Coupon
     quantity: {type: Number}, //Total number of items available for this particular Perk
-    showOnTop: {type: Boolean, default: false}, 
+    showOnTop: {type: Boolean, default: false},
+    enabled: {type: Boolean, default: false}, 
 }, {timestamps: true});
 
 PerkSchema.plugin(mongoosePaginate);

@@ -51,6 +51,10 @@ router.post('/', auth.required, auth.user, async (req, res, next) => {
                     return;
                 }
 
+                if(Number(perk.quantity) != 1 ){
+                    next(new OkResponse({status: 401}))
+                }
+
                 itemsProcessed++;
                 if(itemsProcessed == array.length){
 

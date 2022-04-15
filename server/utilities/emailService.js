@@ -31,9 +31,9 @@ const sendEmail = async (mailDetails) => {
 };
 const sendCouponEmail = async (email, name, coupon) => {
   sendEmail({
-    from: "HoL Store",
+    from: "HOL Notification",
     to: email,
-    subject: "HoL store notification - TEST ONLY",
+    subject: "Gem Vault: Your Legendary Code!💎",
     templateObj: {
       emailText: `<p>Hi Legend, ${name}! You have purchased the a perk and your coupon number is: ${coupon}.</p>
        <p>Use this coupon upon checkout.</p>

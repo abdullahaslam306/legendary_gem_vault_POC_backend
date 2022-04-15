@@ -51,6 +51,8 @@ seedPerks = async() => {
 
     let quantity = [15, 2, 2, 2, 2, 10, 10, 10, 10, 10];
 
+    let enabled = []
+
     let image = [
         'https://legendary-perks.s3.us-west-1.amazonaws.com/CM_WL.png',
         'https://legendary-perks.s3.us-west-1.amazonaws.com/discount_1.png',
