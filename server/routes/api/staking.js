@@ -106,25 +106,28 @@ router.post('/filter', async (req, res, next) => {
 });
 
 router.post('/filter-nfts', auth.required, auth.user, async (req, res, next) => {
-    await Moralis.start({ serverUrl: MORALIS.serverUrl, appId: MORALIS.appId });
-    let userAssets = await Moralis.Web3API.account.getNFTs({chain: CHAIN, address: req.user.walletAddress});
-    userAssets = userAssets?.result;
-    userAssets = userAssets.filter(x => x.token_address.toLowerCase() == NFT_CONTRACT_ADDRESS.toLowerCase());  
+    try{
+        await Moralis.start({ serverUrl: MORALIS.serverUrl, appId: MORALIS.appId });
+        let userAssets = await Moralis.Web3API.account.getNFTs({chain: CHAIN, address: req.user.walletAddress});
+        userAssets = userAssets?.result;
+        userAssets = userAssets.filter(x => x.token_address.toLowerCase() == NFT_CONTRACT_ADDRESS.toLowerCase());  
+    
+        userAssets = userAssets.map(x => x.token_id);
+        userAssets = userAssets.filter((el) => {
+            return !req.body.stakedAssets.includes( el );
+        });
+        let allTokenIds = userAssets.concat(req.body.stakedAssets);
+        let unstakedNFTsArray = await NFT.find({tokenId: {$in: userAssets}});
+        let stakedNFTsArray = await Staking.find({asset: {$in: req.body.stakedAssets}, endDate: null});
+        let allNFTs = await NFT.find({tokenId: {$in: allTokenIds}});
+    
+        next(new OkResponse({
+            allNFTs: allNFTs,
+            stakedNFTs: stakedNFTsArray, 
+            unstakedNFTs: unstakedNFTsArray
+        }));
+    }catch(e){console.log(e);}
 
-    userAssets = userAssets.map(x => x.token_id);
-    userAssets = userAssets.filter((el) => {
-        return !req.body.stakedAssets.includes( el );
-    });
-    let allTokenIds = userAssets.concat(req.body.stakedAssets);
-    let unstakedNFTsArray = await NFT.find({tokenId: {$in: userAssets}});
-    let stakedNFTsArray = await Staking.find({asset: {$in: req.body.stakedAssets}, endDate: null});
-    let allNFTs = await NFT.find({tokenId: {$in: allTokenIds}});
-
-    next(new OkResponse({
-        allNFTs: allNFTs,
-        stakedNFTs: stakedNFTsArray, 
-        unstakedNFTs: unstakedNFTsArray
-    }));
 })
 
 router.post('/claim', auth.required, auth.user, async (req, res, next) => {

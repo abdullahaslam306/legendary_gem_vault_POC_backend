@@ -76,7 +76,7 @@ router.post('/', auth.required, auth.user, async (req, res, next) => {
                         for(let j = 0;j < Number(perks[i].quantity);j++) {
                             Coupon.findOneAndUpdate({perk: perks[i].slug, used: false},{used: true},{returnNewDocument:true}, (err, result) => {
                                 if(perks[i].type == 1){
-                                    sendCouponEmail(req.body.email, req.body.name, result.coupon);
+                                    sendCouponEmail(req.body.email, req.body.name, perks[i].desc, result.coupon);
                                 }
                             });
                             // sendCouponEmail(req.body.email, req.body.name, 'testing-coupon');
@@ -91,6 +91,7 @@ router.post('/', auth.required, auth.user, async (req, res, next) => {
                     }
 
                     order.save().then( async() => {
+                        console.log('Claim Deduction', claimDeduction)
                         if(claimDeduction != 0){
                             let userClaimRecord = await Claim.findOne({walletAddress: req.user.walletAddress});
                             if(userClaimRecord){

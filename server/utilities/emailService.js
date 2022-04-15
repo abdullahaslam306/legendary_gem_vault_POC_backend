@@ -29,15 +29,18 @@ const sendEmail = async (mailDetails) => {
     console.error('error sending email:' ,error);
   }
 };
-const sendCouponEmail = async (email, name, coupon) => {
+const sendCouponEmail = async (email, name, perkName, coupon) => {
   sendEmail({
     from: "HOL Notification",
     to: email,
     subject: "Gem Vault: Your Legendary Code!💎",
     templateObj: {
-      emailText: `<p>Hi Legend, ${name}! You have purchased the a perk and your coupon number is: ${coupon}.</p>
-       <p>Use this coupon upon checkout.</p>
-       <p>This is for testing purposes only.</p>`,
+      emailText: `<p>Congratulations on your purchase, you Legend!</p>
+      <p>Hi ${name},</p>
+      <p>This is a confirmation that you have purchased ${perkName} and your one-time coupon code is ${coupon}.</p>
+       <p>Use this coupon at checkout in our Legendary Shop to redeem it for exciting discounts on exclusive HOL merch that you'll love! </p>
+       <button>Shop Now</button>
+       <p>You are a few clicks away from exploring the most Legendary store in the Metaverse. </p>`,
     },
   });
 };
