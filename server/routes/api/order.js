@@ -47,7 +47,7 @@ router.post('/', auth.required, auth.user, async (req, res, next) => {
                     quantity: Number(perk.quantity)
                 })
                 if((Number(result.quantity) - Number(perk.quantity)) < 0){
-                    next(new NotFoundResponse('Requested Perk is out of stock'))
+                    next(new OkResponse({status: 404}));
                     return;
                 }
 
