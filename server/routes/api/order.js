@@ -10,6 +10,7 @@ let httpResponse = require('express-http-response');
 let OkResponse = httpResponse.OkResponse;
 let BadRequestResponse = httpResponse.BadRequestResponse;
 let NotFoundResponse = httpResponse.NotFoundResponse;
+let {PERK_TYPE} = require('../../constants/constants');
 let auth = require('../../middlewares/auth');
 const {
     sendCouponEmail
@@ -75,7 +76,7 @@ router.post('/', auth.required, auth.user, async (req, res, next) => {
                     for(let i = 0;i < perks.length;i++) {
                         for(let j = 0;j < Number(perks[i].quantity);j++) {
                             Coupon.findOneAndUpdate({perk: perks[i].slug, used: false},{used: true},{returnNewDocument:true}, (err, result) => {
-                                if(perks[i].type == 1){
+                                if(perks[i].type == PERK_TYPE.COUPON){
                                     sendCouponEmail(req.body.email, req.body.name, perks[i].desc, result.coupon);
                                 }
                             });
