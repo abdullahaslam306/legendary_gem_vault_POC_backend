@@ -18,6 +18,14 @@ router.get('/', (req, res, next) => {
         query.noOfGems = { $gte: req.query.min, $lte: req.query.max };
     }
 
+    if(typeof req.query.legendNo !== undefined && req.query.legendNo == 1 && req.query.legendNo !== null){
+        options.sort = 'tokenId';
+    }
+
+    if(typeof req.query.gems !== undefined && req.query.gems == 1 && req.query.gems !== null){
+        options.sort = '-noOfGems';
+    }
+
     NFT.paginate(query, options, (err, result1) => {
         if(err) {
             next(new BadRequestResponse({err: err}));

@@ -3,7 +3,7 @@ const mongoosePaginate = require('mongoose-paginate-v2');
 
 let NFTSchema = new mongoose.Schema({
     address: {type: String},
-    tokenId: {type: String},
+    tokenId: {type: Number},
     tokenUri: {type: String},
     noOfGems: {type: Number, default: 0},
     traits: [{

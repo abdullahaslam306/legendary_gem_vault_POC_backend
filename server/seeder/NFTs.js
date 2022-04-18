@@ -40,7 +40,7 @@ seedNFTs = async () => {
         for(let i = 0; i < temp.result.length; i++){
             let nft = new NFT();
             nft.address =  temp.result[i].token_address;
-            nft.tokenId =  temp.result[i].token_id;
+            nft.tokenId =  Number(temp.result[i].token_id);
             nft.tokenUri = temp.result[i].token_uri;
             await nft.save();
         }
@@ -48,7 +48,7 @@ seedNFTs = async () => {
 
     let nft = new NFT();
     nft.address =  "0x8C714199d2eA08CC1f1F39A60f5cD02aD260A1e3";
-    nft.tokenId =  "8545";
+    nft.tokenId =  8545;
     nft.tokenUri = "https://ipfs.moralis.io:2053/ipfs/QmNYfJMYagHws7gwN2Hw8USQfF7z2ZG9RwRX9MbmssyzhH/8545";
     await nft.save();
     console.log('NFTs Seeded!');
