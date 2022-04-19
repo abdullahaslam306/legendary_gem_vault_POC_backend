@@ -8,7 +8,8 @@ let mongoose = require("mongoose");
 let Event = mongoose.model("Event");
 let Staking = mongoose.model("Staking");
 let NFT = mongoose.model("NFT");
-let {EVENT_TYPE} = require('../constants/constants');
+let { EVENT_TYPE, GEMS_CONFIG } = require('../constants/constants');
+
 
 const listStakedEvents = async () => {
     console.log('Getting Staked Events...');
@@ -46,9 +47,9 @@ const listUnstakedEvents = async () => {
             console.log('Unstaked Record Inserted In DB!');
             let event = new Event();
             event.docId = doc.id + '-' + EVENT_TYPE.UNSTAKED;
-            event.tokenIds = doc.tokenIds;
-            event.address = doc.address;
-            event.block_timestamp = doc.block_timestamp;
+            event.tokenIds = doc.attributes.tokenIds;
+            event.address = doc.attributes.address;
+            event.block_timestamp = doc.attributes.block_timestamp;
             event.eventType = EVENT_TYPE.UNSTAKED;
 
             await event.save();
@@ -63,45 +64,74 @@ const seedEvents = async () => {
 }
 
 const updateRecordsForStake = async() => {
-    let allUnprocessedEvents = Events.find({eventType: EVENT_TYPE.STAKED, isProcessed: false});
+    console.log('Updating Staking Records...');
+    let allUnprocessedEvents = Event.find({eventType: EVENT_TYPE.STAKED, isProcessed: false});
+    for await (let record of allUnprocessedEvents) {
+        try{
+            for await (let tokenId of record.tokenIds){
+                let staking = new Staking();
+                staking.asset = tokenId;
+                staking.startDate = Date.now();
+    
+                await staking.save();
+            }
+            record.isProcessed = true;
+            await record.save();
+        }catch(e){
+            record.hasException = true;
+            await record.save();
+        }
+
+    }
+    console.log('Staking Records Updated!');
 }
 
 const updateRecordsForUnstake = async() => {
-    
+    console.log('Updating Staking Records For Unstake...');
+    let allUnprocessedEvents = Event.find({eventType: EVENT_TYPE.UNSTAKED, isProcessed: false});
+    for await (let record of allUnprocessedEvents) {
+        try{
+            let stakingRecord = await Staking.findOne({asset: record.tokenIds[0]});
+            if(stakingRecord){
+                stakingRecord.endDate = Date.now();
+                await stakingRecord.save();
+                record.isProcessed = true;
+                await record.save();
+            }else{
+                record.hasException = true;
+                await record.save();
+            }
+        }catch(e){
+            record.hasException = true;
+            await record.save();
+        }
+    }
+    console.log('Staking Records For Unstake Updated!');
 }
 
-    // mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
-    // useNewUrlParser: true,
-    // useUnifiedTopology: true,
-    // useFindAndModify: false,
-    // useCreateIndex: true
-    // }).catch(err => {
-    //     console.log(err.stack);
-    //     process.exit(1);
-    // })
-    // .then((connection) => {
-    //     console.log("Connected to DB in development environment");
-    //     seedEvents();
-    // });
+const updateRecords = async () => {
+    await updateRecordsForStake();
+    await updateRecordsForUnstake();
+}
 
+cron.schedule('*/15 * * * *', async () => {
+    console.log('CRON RUNNING!')
 
-// cron.schedule('*/15 * * * *', async () => {
-//     console.log('CRON RUNNING!')
-
-//     mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//     useFindAndModify: false,
-//     useCreateIndex: true
-//     }).catch(err => {
-//         console.log(err.stack);
-//         process.exit(1);
-//     })
-//     .then((connection) => {
-//         console.log("Connected to DB in development environment");
-//         seedEvents();
-//     });
-// });
+    mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true
+    }).catch(err => {
+        console.log(err.stack);
+        process.exit(1);
+    })
+    .then(async (connection) => {
+        console.log("Connected to DB in development environment");
+        await seedEvents();
+        await updateRecords();
+    });
+});
 
 
 

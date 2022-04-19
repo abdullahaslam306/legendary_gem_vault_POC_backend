@@ -118,7 +118,7 @@ router.post('/filter-nfts', auth.required, auth.user, async (req, res, next) => 
         });
         let allTokenIds = userAssets.concat(req.body.stakedAssets);
         let unstakedNFTsArray = await NFT.find({tokenId: {$in: userAssets}});
-        let stakedNFTsArray = await Staking.find({asset: {$in: req.body.stakedAssets}, endDate: null});
+        let stakedNFTsArray = await NFT.find({tokenId: {$in: req.body.stakedAssets}});
         let allNFTs = await NFT.find({tokenId: {$in: allTokenIds}});
     
         next(new OkResponse({
