@@ -41,7 +41,7 @@ const populateEvents = async () => {
 
 const updateStakingRecords = async () => {
     console.log('Updating Staking Records...');
-    let allUnprocessedEvents = await Event.find({isProcessed: false}).sort({"block_timestamp":1});
+    let allUnprocessedEvents = await Event.find({isProcessed: false, hasException: false}).sort({"block_timestamp":1});
     for await (let record of allUnprocessedEvents) {
         if(record.eventType == EVENT_TYPE.STAKED){
 
