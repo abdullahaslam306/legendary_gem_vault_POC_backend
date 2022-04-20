@@ -11,107 +11,78 @@ let NFT = mongoose.model("NFT");
 let { EVENT_TYPE, GEMS_CONFIG } = require('../constants/constants');
 
 
-const listStakedEvents = async () => {
-    console.log('Getting Staked Events...');
+const listEvents = async (eventType) => {
+    console.log('Getting '+ eventType +' Events...');
     await Moralis.start({ serverUrl: MORALIS_EVENTS.serverUrl, appId: MORALIS_EVENTS.appId });
-    const StakedEvents = Moralis.Object.extend("StakedEvents");
-    const query = new Moralis.Query(StakedEvents);
+    const events = Moralis.Object.extend(eventType==EVENT_TYPE.STAKED?"StakedEvents":"UnstakedEvents");
+    const query = new Moralis.Query(events);
     let results = await query.find();
     for await (let doc of results) {
-        let record = await Event.findOne({docId: doc.id + '-' + EVENT_TYPE.STAKED});
+        let record = await Event.findOne({docId: doc.id + '-' + eventType});
         if(!record){
-            console.log('Staked Record Inserted In DB!');
+            console.log(eventType + ' Record Inserted In DB!');
             let event = new Event();
-            event.docId = doc.id + '-' + EVENT_TYPE.STAKED;
+            event.docId = doc.id + '-' + eventType;
             event.tokenIds = doc.attributes.tokenIds;
             event.address = doc.attributes.address;
             event.block_timestamp = doc.attributes.block_timestamp;
-            event.eventType = EVENT_TYPE.STAKED;
+            event.eventType = eventType;
 
             await event.save();
         }
     }
-    console.log('Staked Events Complete!');
+    console.log(eventType + ' Events Complete!');
 }
 
-const listUnstakedEvents = async () => {
-    console.log('Getting Unstaked Events...');
-
-    await Moralis.start({ serverUrl: MORALIS_EVENTS.serverUrl, appId: MORALIS_EVENTS.appId });
-    const UnstakedEvents = Moralis.Object.extend("UnstakedEvents");
-    const query = new Moralis.Query(UnstakedEvents);
-    let results = await query.find();
-    for await (let doc of results) {
-        let record = await Event.findOne({docId: doc.id + '-' + EVENT_TYPE.UNSTAKED});
-        if(!record){
-            console.log('Unstaked Record Inserted In DB!');
-            let event = new Event();
-            event.docId = doc.id + '-' + EVENT_TYPE.UNSTAKED;
-            event.tokenIds = doc.attributes.tokenIds;
-            event.address = doc.attributes.address;
-            event.block_timestamp = doc.attributes.block_timestamp;
-            event.eventType = EVENT_TYPE.UNSTAKED;
-
-            await event.save();
-        }
-    }
-    console.log('Unstaked Events Complete!');
+const populateEvents = async () => {
+    await listEvents(EVENT_TYPE.STAKED);
+    await listEvents(EVENT_TYPE.UNSTAKED);
 }
 
-const seedEvents = async () => {
-    await listStakedEvents();
-    await listUnstakedEvents();
-}
-
-const updateRecordsForStake = async() => {
+const updateStakingRecords = async () => {
     console.log('Updating Staking Records...');
-    let allUnprocessedEvents = Event.find({eventType: EVENT_TYPE.STAKED, isProcessed: false});
+    let allUnprocessedEvents = await Event.find({isProcessed: false}).sort({"block_timestamp":1});
     for await (let record of allUnprocessedEvents) {
-        try{
-            for await (let tokenId of record.tokenIds){
-                let staking = new Staking();
-                staking.asset = tokenId;
-                staking.startDate = Date.now();
-    
-                await staking.save();
-            }
-            record.isProcessed = true;
-            await record.save();
-        }catch(e){
-            record.hasException = true;
-            await record.save();
-        }
+        if(record.eventType == EVENT_TYPE.STAKED){
 
-    }
-    console.log('Staking Records Updated!');
-}
-
-const updateRecordsForUnstake = async() => {
-    console.log('Updating Staking Records For Unstake...');
-    let allUnprocessedEvents = Event.find({eventType: EVENT_TYPE.UNSTAKED, isProcessed: false});
-    for await (let record of allUnprocessedEvents) {
-        try{
-            let stakingRecord = await Staking.findOne({asset: record.tokenIds[0]});
-            if(stakingRecord){
-                stakingRecord.endDate = Date.now();
-                await stakingRecord.save();
+            try{
+                for await (let tokenId of record.tokenIds){
+                    let stakingRecord = await Staking.findOne({asset: tokenId, endDate: null});
+                    if(!stakingRecord){   //check if staking doc already exists
+                        let staking = new Staking();
+                        staking.asset = tokenId;
+                        staking.startDate = record.block_timestamp;
+            
+                        await staking.save();
+                    }
+                }
                 record.isProcessed = true;
                 await record.save();
-            }else{
+            }catch(e){
                 record.hasException = true;
                 await record.save();
             }
-        }catch(e){
-            record.hasException = true;
-            await record.save();
+        }else if(record.eventType == EVENT_TYPE.UNSTAKED){
+
+            try{
+                let stakingRecord = await Staking.findOne({asset: record.tokenIds[0], endDate: null});
+                if(stakingRecord){
+                    stakingRecord.endDate = record.block_timestamp;
+                    await stakingRecord.save();
+                    record.isProcessed = true;
+                    await record.save();
+                }else{
+                    record.hasException = true;
+                    await record.save();
+                }
+            }catch(e){
+                record.hasException = true;
+                await record.save();
+            }
         }
     }
-    console.log('Staking Records For Unstake Updated!');
-}
 
-const updateRecords = async () => {
-    await updateRecordsForStake();
-    await updateRecordsForUnstake();
+    console.log('Staking Records Updated!');
 }
 
 cron.schedule('*/15 * * * *', async () => {
@@ -128,8 +99,8 @@ cron.schedule('*/15 * * * *', async () => {
     })
     .then(async (connection) => {
         console.log("Connected to DB in development environment");
-        await seedEvents();
-        await updateRecords();
+        await populateEvents();
+        await updateStakingRecords();
     });
 });
 
