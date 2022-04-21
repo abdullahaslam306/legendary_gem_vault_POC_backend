@@ -115,12 +115,12 @@ const calculateGems = async() => {
             gems += GEMS_CONFIG.sixtyDays * 60;
             gems += GEMS_CONFIG.nintyDays * (days - 90);
         }
-        map[doc.asset] = (map[doc.asset] + Number(gems)) || 0;
+        map[doc.asset] = (map[doc.asset] || 0) + Number(gems);
     }
 
     let allOrderAssets = await OrderAsset.find().sort({"createdAt": 1});
     for(let orderDoc of allOrderAssets){
-        map[orderDoc.address] = (map[orderDoc.address] - orderDoc.gems) || 0;
+        map[orderDoc.address] = (map[orderDoc.address] || 0) - orderDoc.gems;
     }
 
     for(let doc in map){
