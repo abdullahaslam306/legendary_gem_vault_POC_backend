@@ -1,12 +1,15 @@
 const Moralis = require('moralis/node');
 let { MORALIS_EVENTS } = require('../constants/constants');
 const cron = require('node-cron');
+let moment = require('moment');
 require('../models/Event');
 require('../models/Staking');
 require('../models/NFT');
+require('../models/OrderAsset');
 let mongoose = require("mongoose");
 let Event = mongoose.model("Event");
 let Staking = mongoose.model("Staking");
+let OrderAsset = mongoose.model("OrderAsset");
 let NFT = mongoose.model("NFT");
 let { EVENT_TYPE, GEMS_CONFIG } = require('../constants/constants');
 
@@ -68,6 +71,23 @@ const updateStakingRecords = async () => {
                 let stakingRecord = await Staking.findOne({asset: record.tokenIds[0], endDate: null});
                 if(stakingRecord){
                     stakingRecord.endDate = record.block_timestamp;
+                    let start = moment(stakingRecord.startDate);
+                    let end = moment(stakingRecord.endDate);
+                    let duration = moment.duration(end.diff(start));
+                    let days = duration.asDays();
+                    days = Number(days.toFixed(0));
+                    let gems = 0;
+                    if(days < 30){
+                        gems = GEMS_CONFIG.thirtyDays * days;
+                    }else if(days > 30 && days <= 90){
+                        gems = GEMS_CONFIG.thirtyDays * 30;
+                        gems += GEMS_CONFIG.sixtyDays * (days - 30);
+                    }else if(days > 90){
+                        gems = GEMS_CONFIG.thirtyDays * 30;
+                        gems += GEMS_CONFIG.sixtyDays * 60;
+                        gems += GEMS_CONFIG.nintyDays * (days - 90);
+                    }
+                    stakingRecord.gems = gems;
                     await stakingRecord.save();
                     record.isProcessed = true;
                     await record.save();
@@ -85,7 +105,48 @@ const updateStakingRecords = async () => {
     console.log('Staking Records Updated!');
 }
 
-cron.schedule('*/15 * * * *', async () => {
+const calculateGems = async() => {
+    console.log('Calculating Gems...');
+    let map = {};
+    let allStakingRecords = await Staking.find().sort({"createdAt": 1});
+    for(let doc of allStakingRecords){
+        if(doc.endDate != null){
+            map[doc.asset] = (map[doc.asset] + Number(doc.gems)) || 0;
+        }else{
+            let start = moment(doc.startDate);
+            let end = moment(Date.now());
+            let duration = moment.duration(end.diff(start));
+            let days = duration.asDays();
+            days = Number(days.toFixed(0));
+            let gems = 0;
+            if(days < 30){
+                gems = GEMS_CONFIG.thirtyDays * days;
+            }else if(days > 30 && days <= 90){
+                gems = GEMS_CONFIG.thirtyDays * 30;
+                gems += GEMS_CONFIG.sixtyDays * (days - 30);
+            }else if(days > 90){
+                gems = GEMS_CONFIG.thirtyDays * 30;
+                gems += GEMS_CONFIG.sixtyDays * 60;
+                gems += GEMS_CONFIG.nintyDays * (days - 90);
+            }
+            map[doc.asset] = (map[doc.asset] + Number(gems)) || 0;;
+        }
+    }
+
+    let allOrderAssets = await OrderAsset.find().sort({"createdAt": 1});
+    for(let orderDoc of allOrderAssets){
+        map[orderDoc.address] = (map[orderDoc.address] - orderDoc.gems) || 0;
+    }
+
+    for(let doc in map){
+        let nftRecord = await NFT.findOne({tokenId: Number(doc)});
+        nftRecord.noOfGems = map[doc];
+        await nftRecord.save();
+    }    
+    console.log('Gems Calculated!');
+}
+
+cron.schedule('*/5 * * * *', async () => {
     console.log('CRON RUNNING!')
 
     mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
@@ -101,6 +162,7 @@ cron.schedule('*/15 * * * *', async () => {
         console.log("Connected to DB in development environment");
         await populateEvents();
         await updateStakingRecords();
+        await calculateGems();
     });
 });
 
