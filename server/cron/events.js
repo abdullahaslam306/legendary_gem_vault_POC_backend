@@ -93,43 +93,29 @@ const calculateGems = async() => {
     let map = {};
     let allStakingRecords = await Staking.find().sort({"createdAt": 1});
     for(let doc of allStakingRecords){
+        let end;
         if(doc.endDate != null){
-            let start = moment(doc.startDate);
-            let end = moment(doc.endDate);
-            let duration = moment.duration(end.diff(start));
-            let days = duration.asDays();
-            days = Number(days.toFixed(0));
-            let gems = 0;
-            if(days < 30){
-                gems = GEMS_CONFIG.thirtyDays * days;
-            }else if(days > 30 && days <= 90){
-                gems = GEMS_CONFIG.thirtyDays * 30;
-                gems += GEMS_CONFIG.sixtyDays * (days - 30);
-            }else if(days > 90){
-                gems = GEMS_CONFIG.thirtyDays * 30;
-                gems += GEMS_CONFIG.sixtyDays * 60;
-                gems += GEMS_CONFIG.nintyDays * (days - 90);
-            }
-            map[doc.asset] = (map[doc.asset] + Number(gems)) || 0;
+            end = moment(doc.endDate);
+
         }else{
-            let start = moment(doc.startDate);
-            let end = moment(Date.now());
-            let duration = moment.duration(end.diff(start));
-            let days = duration.asDays();
-            days = Number(days.toFixed(0));
-            let gems = 0;
-            if(days < 30){
-                gems = GEMS_CONFIG.thirtyDays * days;
-            }else if(days > 30 && days <= 90){
-                gems = GEMS_CONFIG.thirtyDays * 30;
-                gems += GEMS_CONFIG.sixtyDays * (days - 30);
-            }else if(days > 90){
-                gems = GEMS_CONFIG.thirtyDays * 30;
-                gems += GEMS_CONFIG.sixtyDays * 60;
-                gems += GEMS_CONFIG.nintyDays * (days - 90);
-            }
-            map[doc.asset] = (map[doc.asset] + Number(gems)) || 0;;
+            end = moment(Date.now());
         }
+        let start = moment(doc.startDate);
+        let duration = moment.duration(end.diff(start));
+        let days = duration.asDays();
+        days = Number(days.toFixed(0));
+        let gems = 0;
+        if(days < 30){
+            gems = GEMS_CONFIG.thirtyDays * days;
+        }else if(days > 30 && days <= 90){
+            gems = GEMS_CONFIG.thirtyDays * 30;
+            gems += GEMS_CONFIG.sixtyDays * (days - 30);
+        }else if(days > 90){
+            gems = GEMS_CONFIG.thirtyDays * 30;
+            gems += GEMS_CONFIG.sixtyDays * 60;
+            gems += GEMS_CONFIG.nintyDays * (days - 90);
+        }
+        map[doc.asset] = (map[doc.asset] + Number(gems)) || 0;
     }
 
     let allOrderAssets = await OrderAsset.find().sort({"createdAt": 1});
