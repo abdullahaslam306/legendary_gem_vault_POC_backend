@@ -14,7 +14,7 @@ let NFT = mongoose.model("NFT");
 let { EVENT_TYPE, GEMS_CONFIG } = require('../constants/constants');
 
 
-const listEvents = async (eventType) => {
+const populateEventsInner = async (eventType) => {
     console.log('Getting '+ eventType +' Events...');
     await Moralis.start({ serverUrl: MORALIS_EVENTS.serverUrl, appId: MORALIS_EVENTS.appId });
     const events = Moralis.Object.extend(eventType==EVENT_TYPE.STAKED?"StakedEvents":"UnstakedEvents");
@@ -38,8 +38,8 @@ const listEvents = async (eventType) => {
 }
 
 const populateEvents = async () => {
-    await listEvents(EVENT_TYPE.STAKED);
-    await listEvents(EVENT_TYPE.UNSTAKED);
+    await populateEventsInner(EVENT_TYPE.STAKED);
+    await populateEventsInner(EVENT_TYPE.UNSTAKED);
 }
 
 const updateStakingRecords = async () => {
@@ -71,23 +71,6 @@ const updateStakingRecords = async () => {
                 let stakingRecord = await Staking.findOne({asset: record.tokenIds[0], endDate: null});
                 if(stakingRecord){
                     stakingRecord.endDate = record.block_timestamp;
-                    let start = moment(stakingRecord.startDate);
-                    let end = moment(stakingRecord.endDate);
-                    let duration = moment.duration(end.diff(start));
-                    let days = duration.asDays();
-                    days = Number(days.toFixed(0));
-                    let gems = 0;
-                    if(days < 30){
-                        gems = GEMS_CONFIG.thirtyDays * days;
-                    }else if(days > 30 && days <= 90){
-                        gems = GEMS_CONFIG.thirtyDays * 30;
-                        gems += GEMS_CONFIG.sixtyDays * (days - 30);
-                    }else if(days > 90){
-                        gems = GEMS_CONFIG.thirtyDays * 30;
-                        gems += GEMS_CONFIG.sixtyDays * 60;
-                        gems += GEMS_CONFIG.nintyDays * (days - 90);
-                    }
-                    stakingRecord.gems = gems;
                     await stakingRecord.save();
                     record.isProcessed = true;
                     await record.save();
@@ -111,7 +94,23 @@ const calculateGems = async() => {
     let allStakingRecords = await Staking.find().sort({"createdAt": 1});
     for(let doc of allStakingRecords){
         if(doc.endDate != null){
-            map[doc.asset] = (map[doc.asset] + Number(doc.gems)) || 0;
+            let start = moment(doc.startDate);
+            let end = moment(doc.endDate);
+            let duration = moment.duration(end.diff(start));
+            let days = duration.asDays();
+            days = Number(days.toFixed(0));
+            let gems = 0;
+            if(days < 30){
+                gems = GEMS_CONFIG.thirtyDays * days;
+            }else if(days > 30 && days <= 90){
+                gems = GEMS_CONFIG.thirtyDays * 30;
+                gems += GEMS_CONFIG.sixtyDays * (days - 30);
+            }else if(days > 90){
+                gems = GEMS_CONFIG.thirtyDays * 30;
+                gems += GEMS_CONFIG.sixtyDays * 60;
+                gems += GEMS_CONFIG.nintyDays * (days - 90);
+            }
+            map[doc.asset] = (map[doc.asset] + Number(gems)) || 0;
         }else{
             let start = moment(doc.startDate);
             let end = moment(Date.now());
