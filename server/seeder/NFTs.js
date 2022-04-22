@@ -19,9 +19,15 @@ mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
         console.log(err.stack);
         process.exit(1);
     })
-    .then((connection) => {
+    .then(async (connection) => {
         console.log("Connected to DB in development environment");
-        seedNFTs();
+        try{
+            await mongoose.connection.db.dropCollection('nfts');
+            console.log("NFT Collection Dropped...");
+            seedNFTs();
+        }catch(e){
+            seedNFTs();
+        }   
         // seedTraits();
         // checkMissing();
     });
