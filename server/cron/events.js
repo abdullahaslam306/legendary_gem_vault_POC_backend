@@ -20,6 +20,7 @@ const populateEventsInner = async (eventType) => {
     const events = Moralis.Object.extend(eventType==EVENT_TYPE.STAKED?"StakedEvents":"UnstakedEvents");
     const query = new Moralis.Query(events);
     let results = await query.find();
+    results = results.filter(x => x.attributes.confirmed == true);
     for await (let doc of results) {
         let record = await Event.findOne({docId: doc.id + '-' + eventType});
         if(!record){
@@ -150,6 +151,7 @@ cron.schedule('*/15 * * * *', async () => {
         await calculateGems();
     });
 });
+
 
 
 
