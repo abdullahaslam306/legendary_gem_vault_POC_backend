@@ -131,7 +131,7 @@ const calculateGems = async() => {
     console.log('Gems Calculated!');
 }
 
-cron.schedule('*/5 * * * *', async () => {
+cron.schedule('*/15 * * * *', async () => {
     console.log('CRON RUNNING!')
 
     mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
