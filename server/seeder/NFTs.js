@@ -6,7 +6,7 @@ let { createAlchemyWeb3 } = require('@alch/alchemy-web3');
 const web3 = createAlchemyWeb3(
     "https://eth-mainnet.alchemyapi.io/v2/demo",
 );
-let {MORALIS} = require("../constants/constants");
+let {MORALIS, NFT_CONTRACT_ADDRESS} = require("../constants/constants");
 
 
 
@@ -28,14 +28,16 @@ mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
 
 
 seedNFTs = async () => {
+    let cursor = null;
     console.log('Seeding NFTs to the Database...');
     await Moralis.start({ serverUrl: MORALIS.serverUrl, appId: MORALIS.appId });
     for(let i = 0;i <= 9500;i=i+500) {
         let temp = await Moralis.Web3API.token.getAllTokenIds({
             chain: "eth",
-            offset: i,
-            address: "0x8C714199d2eA08CC1f1F39A60f5cD02aD260A1e3",
+            cursor: cursor,
+            address: NFT_CONTRACT_ADDRESS,
         });
+        cursor = temp.cursor;
         console.log(temp.result.length);
         for(let i = 0; i < temp.result.length; i++){
             let nft = new NFT();
