@@ -44,7 +44,8 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/search', (req, res, next) => {
-    NFT.find({tokenId: new RegExp(req.query.tokenId, 'i')}).then((result) =>{
+    NFT.find().then((result) =>{
+        result = result.filter(x => x.tokenId.toString().includes(req.query.tokenId));
         next(new OkResponse({result: result}));
     });
 });
