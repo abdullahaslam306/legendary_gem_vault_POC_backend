@@ -2,6 +2,7 @@ const Moralis = require('moralis/node');
 require('../models/NFT');
 let mongoose = require("mongoose");
 let NFT = mongoose.model("NFT");
+let fs = require('fs');
 let { createAlchemyWeb3 } = require('@alch/alchemy-web3');
 const web3 = createAlchemyWeb3(
     "https://eth-mainnet.alchemyapi.io/v2/demo",
@@ -35,6 +36,7 @@ mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
 
 seedNFTs = async () => {
     let cursor = null;
+    let obj = JSON.parse(fs.readFileSync('../../nft.json', 'utf8'));
     console.log('Seeding NFTs to the Database...');
     await Moralis.start({ serverUrl: MORALIS.serverUrl, appId: MORALIS.appId });
     for(let i = 0;i <= 9500;i=i+500) {
@@ -50,6 +52,14 @@ seedNFTs = async () => {
             nft.address =  temp.result[i].token_address;
             nft.tokenId =  Number(temp.result[i].token_id);
             nft.tokenUri = temp.result[i].token_uri;
+            let traits = obj.filter(x => Number(x.tokenId) == Number(temp.result[i].token_id))[0].traits;
+            traits = traits.map(x => {
+                return {
+                    value: x.value,
+                    trait_type: x.trait_type
+                }
+            });
+            nft.traits = traits;
             await nft.save();
         }
     }
@@ -58,6 +68,14 @@ seedNFTs = async () => {
     nft.address =  "0x8C714199d2eA08CC1f1F39A60f5cD02aD260A1e3";
     nft.tokenId =  8545;
     nft.tokenUri = "https://ipfs.moralis.io:2053/ipfs/QmNYfJMYagHws7gwN2Hw8USQfF7z2ZG9RwRX9MbmssyzhH/8545";
+    let traits = obj.filter(x => Number(x.tokenId) == 8545)[0].traits;
+    traits = traits.map(x => {
+        return {
+            value: x.value,
+            trait_type: x.trait_type
+        }
+    });
+    nft.traits = traits;
     await nft.save();
     console.log('NFTs Seeded!');
 }
