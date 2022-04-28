@@ -112,6 +112,8 @@ router.get('/', (req, res, next) => {
         );
     }
 
+    console.log('Traits Array: ');
+
     if(traitsQueryArray.length != 0){
         query.traits = {$all: traitsQueryArray};
     }
