@@ -151,7 +151,7 @@ router.post('/claim', auth.required, auth.user, async (req, res, next) => {
                 console.log('claim: stake exists for token', tokenId);
                 continue;
             }
-
+            //Comm
             foundOne = true;
 
             let newStakingRecord = new Staking();
