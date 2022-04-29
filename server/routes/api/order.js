@@ -10,6 +10,7 @@ let httpResponse = require('express-http-response');
 let OkResponse = httpResponse.OkResponse;
 let BadRequestResponse = httpResponse.BadRequestResponse;
 let NotFoundResponse = httpResponse.NotFoundResponse;
+let moment = require('moment');
 let {PERK_TYPE} = require('../../constants/constants');
 let auth = require('../../middlewares/auth');
 const {
@@ -27,6 +28,14 @@ router.post('/', auth.required, auth.user, async (req, res, next) => {
     let quantityArray = [];
 
     try{
+        // 2022-04-28T06:24:47
+        let oldDate = moment(Date.now()).subtract(24,"hours").format("YYYY-MM-DDTHH:mm:ss");
+        let oldOrder = await Order.findOne({user:req.user._id, date:{$gte: oldDate}});
+        if(oldOrder){
+            next(new OkResponse({status: 301}));
+            return;
+        }
+        
         let temp = await Claim.findOne({walletAddress: req.user.walletAddress});
         if(temp){
             rewardGems = temp.gems - temp.usedGems;
@@ -70,7 +79,6 @@ router.post('/', auth.required, auth.user, async (req, res, next) => {
                     order.user = req.user._id;
                     order.date = Date.now();
                     order.quantityArray = quantityArray;
-                    // order.perks = perksIds;
 
 
                     for(let i = 0;i < perks.length;i++) {
@@ -80,7 +88,6 @@ router.post('/', auth.required, auth.user, async (req, res, next) => {
                                     sendCouponEmail(req.body.email, req.body.name, perks[i].desc, result.coupon);
                                 }
                             });
-                            // sendCouponEmail(req.body.email, req.body.name, 'testing-coupon');
                         } 
                     }
 
