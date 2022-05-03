@@ -24,7 +24,7 @@ router.get('/', (req, res, next) => {
         let query = {};
         const options = {
             page: +req.query.page || 1,
-            limit: +req.query.limit || 12,
+            limit: +req.query.limit || 100,
         }
 
         if (typeof req.query.gems !== undefined && req.query.gems && req.query.gems !== null) {
@@ -43,7 +43,6 @@ router.get('/', (req, res, next) => {
                     let soldCount = await Coupon.countDocuments({perk: perkSlug, used: true});
                     let qtyCount = await Coupon.countDocuments({perk: perkSlug, used: false}); //Remaining Quantity
                     
-                    let index = result.docs.map(doc => doc.slug).indexOf(perkSlug);
                     const newObj = {
                         _id: result.docs[index]._id,
                         showOnTop: result.docs[index].showOnTop,
