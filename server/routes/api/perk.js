@@ -43,6 +43,7 @@ router.get('/', (req, res, next) => {
                     let soldCount = await Coupon.countDocuments({perk: perkSlug, used: true});
                     let qtyCount = await Coupon.countDocuments({perk: perkSlug, used: false}); //Remaining Quantity
                     
+                    let index = result.docs.map(doc => doc.slug).indexOf(perkSlug);
                     const newObj = {
                         _id: result.docs[index]._id,
                         showOnTop: result.docs[index].showOnTop,
