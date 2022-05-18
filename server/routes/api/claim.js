@@ -11,7 +11,7 @@ let auth = require('../../middlewares/auth');
 let { MORALIS, NFT_CONTRACT_ADDRESS, CHAIN} = require('../../constants/constants');
 
 
-router.get('/', auth.required, auth.user, async(req, res, next) => {
+router.post('/', auth.required, auth.user, async(req, res, next) => {
     try{
         let record = await Claim.findOne({walletAddress: req.user.walletAddress})
         if(record){
@@ -22,7 +22,7 @@ router.get('/', auth.required, auth.user, async(req, res, next) => {
             let userAssets = await Moralis.Web3API.account.getNFTs({chain: CHAIN, address: req.user.walletAddress});
             userAssets = userAssets?.result;
             userAssets = userAssets.filter(x => x.token_address.toLowerCase() == NFT_CONTRACT_ADDRESS.toLowerCase());
-            if(userAssets.length == 0){
+            if(userAssets.length == 0 && req.body.stakedAssets.length == 0){
                 console.error('No Asset Found!');
                 next(new OkResponse({status: 203, message: 'Cannot claim gems with No Assets'}));
                 return;   
