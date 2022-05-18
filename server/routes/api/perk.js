@@ -24,7 +24,7 @@ router.get('/', (req, res, next) => {
         let query = {};
         const options = {
             page: +req.query.page || 1,
-            limit: +req.query.limit || 12,
+            limit: +req.query.limit || 100,
         }
 
         if (typeof req.query.gems !== undefined && req.query.gems && req.query.gems !== null) {
