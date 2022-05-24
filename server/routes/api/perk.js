@@ -24,15 +24,24 @@ router.get('/', (req, res, next) => {
         let query = {};
         const options = {
             page: +req.query.page || 1,
-            limit: +req.query.limit || 100,
+            limit: +req.query.limit || 100
         }
 
         if (typeof req.query.gems !== undefined && req.query.gems && req.query.gems !== null) {
             query.price = { $lte: req.query.gems };
         }
 
+        if(typeof req.query.sort !== undefined && req.query.sort && req.query.sort !== null){
+            if(req.query.sort == 1){
+                options.sort = 'price';
+            }else if(req.query.sort == -1){
+                options.sort = '-price';
+            }
+        }
+
         query.enabled = true;
  
+        
         Perk.paginate(query, options, async(err, result) => {
             if(err) {
                 next(new BadRequestResponse({err: err}));
@@ -65,5 +74,6 @@ router.get('/', (req, res, next) => {
         next(new BadRequestResponse({err: err}));
     }
 });
+
 
 module.exports = router;
