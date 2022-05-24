@@ -41,6 +41,7 @@ router.get('/', (req, res, next) => {
 
         query.enabled = true;
  
+        
         Perk.paginate(query, options, async(err, result) => {
             if(err) {
                 next(new BadRequestResponse({err: err}));
