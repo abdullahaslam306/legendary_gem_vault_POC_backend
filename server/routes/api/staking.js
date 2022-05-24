@@ -107,6 +107,13 @@ router.post('/filter', async (req, res, next) => {
 
 router.post('/filter-nfts', auth.required, auth.user, async (req, res, next) => {
     try{
+        // let x1 = await Moralis.Web3API.account.getNFTs({chain: CHAIN, address: '0xEc7230493F7cadBE86EE28227B61B0936202a248'});
+        // x1 = x1?.result;
+        // x1 = x1.filter(x => x.token_address.toLowerCase() == NFT_CONTRACT_ADDRESS.toLowerCase());
+        // console.log('Length!!!!!!!!!!!',x1.length);  
+        // console.log('COOOOOOOOL!!!!!!!!!!!',x1);
+        // console.log('Length!!!!!!!!!!!',x1.length);
+
         await Moralis.start({ serverUrl: MORALIS.serverUrl, appId: MORALIS.appId });
         let userAssets = await Moralis.Web3API.account.getNFTs({chain: CHAIN, address: req.user.walletAddress});
         userAssets = userAssets?.result;
