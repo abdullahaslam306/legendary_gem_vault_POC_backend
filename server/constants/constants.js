@@ -9,15 +9,15 @@ const EVENT_TYPE = {
 };
 
 const MORALIS = {
-    serverUrl: "https://rpc11whc2ogq.usemoralis.com:2053/server",    
-    appId: "iNsfWaO6RE0vRpBkcPQN2JmOdSm94lMKnaAu2bMV"     
+    serverUrl: "https://d1aqvg2oym8a.usemoralis.com:2053/server",    
+    appId: "olsLXRBsPPaeKp861pGEXZs0Fc9Njg7M0tzEW2Gk"     
 };
 
 const MORALIS_EVENTS = {
     // serverUrl: "https://z101lcihky72.usemoralis.com:2053/server",  //Testnet
     // appId: "FPHda0SBrkhWMudW5wLNWLPzlrRalnjrEKiNpv1q"   //Testnet
-    serverUrl: "https://nt3fgkujzou0.usemoralis.com:2053/server",  //Mainnet
-    appId: "KeF3XYtdfKnSxZ61utyOdPPh56LJY680KT6Cyqkg"   //Mainnet
+    serverUrl: "https://ypumqbvkl3e5.usemoralis.com:2053/server",  //Mainnet
+    appId: "eBQqH0TGhThvV25jmMC16AfhItYDmjOderRUbou9"   //Mainnet
 }
 
 // const NFT_CONTRACT_ADDRESS = "0x0D731c7D2247d53a22cE8848F62908991883CF0B"; //Testnet
