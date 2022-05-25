@@ -117,12 +117,17 @@ router.post('/filter-nfts', auth.required, auth.user, async (req, res, next) => 
         let userAssets= [];
         let cursor = null;
         do{
-            let x2 = await Moralis.Web3API.account.getNFTs({chain: CHAIN, cursor: cursor, address: req.user.walletAddress});
+            let x2 = await Moralis.Web3API.account.getNFTs({
+                chain: CHAIN, 
+                cursor: cursor, 
+                address: req.user.walletAddress
+            });
             cursor = x2.cursor;
             x2 = x2?.result;
             x2 = x2.filter(x => x.token_address.toLowerCase() == NFT_CONTRACT_ADDRESS.toLowerCase());
             userAssets = userAssets.concat(x2);
         }while(cursor != '' && cursor != null);
+        console.log('Length: ',userAssets.length);
         
     
         userAssets = userAssets.map(x => x.token_id);
