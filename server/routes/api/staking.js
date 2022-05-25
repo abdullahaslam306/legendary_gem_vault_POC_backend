@@ -107,17 +107,23 @@ router.post('/filter', async (req, res, next) => {
 
 router.post('/filter-nfts', auth.required, auth.user, async (req, res, next) => {
     try{
-        // let x1 = await Moralis.Web3API.account.getNFTs({chain: CHAIN, address: '0xEc7230493F7cadBE86EE28227B61B0936202a248'});
-        // x1 = x1?.result;
-        // x1 = x1.filter(x => x.token_address.toLowerCase() == NFT_CONTRACT_ADDRESS.toLowerCase());
-        // console.log('Length!!!!!!!!!!!',x1.length);  
-        // console.log('COOOOOOOOL!!!!!!!!!!!',x1);
-        // console.log('Length!!!!!!!!!!!',x1.length);
 
         await Moralis.start({ serverUrl: MORALIS.serverUrl, appId: MORALIS.appId });
-        let userAssets = await Moralis.Web3API.account.getNFTs({chain: CHAIN, address: req.user.walletAddress});
-        userAssets = userAssets?.result;
-        userAssets = userAssets.filter(x => x.token_address.toLowerCase() == NFT_CONTRACT_ADDRESS.toLowerCase());  
+        // let userAssets = await Moralis.Web3API.account.getNFTs({chain: CHAIN, address: req.user.walletAddress});
+        // userAssets = userAssets?.result;
+        // userAssets = userAssets.filter(x => x.token_address.toLowerCase() == NFT_CONTRACT_ADDRESS.toLowerCase());  
+
+
+        let userAssets= [];
+        let cursor = null;
+        do{
+            let x2 = await Moralis.Web3API.account.getNFTs({chain: CHAIN, cursor: cursor, address: req.user.walletAddress});
+            cursor = x2.cursor;
+            x2 = x2?.result;
+            x2 = x2.filter(x => x.token_address.toLowerCase() == NFT_CONTRACT_ADDRESS.toLowerCase());
+            userAssets = userAssets.concat(x2);
+        }while(cursor != '' && cursor != null);
+        
     
         userAssets = userAssets.map(x => x.token_id);
         userAssets = userAssets.filter((el) => {
