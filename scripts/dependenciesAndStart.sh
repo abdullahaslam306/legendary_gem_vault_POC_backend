@@ -2,4 +2,4 @@
 
 cd /opt/app/backend
 sudo npm install --no-audit
-sudo pm2 start app.js
+sudo pm2 start all
