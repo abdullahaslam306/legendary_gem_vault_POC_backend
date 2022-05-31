@@ -19,7 +19,18 @@ const populateEventsInner = async (eventType) => {
     await Moralis.start({ serverUrl: MORALIS_EVENTS.serverUrl, appId: MORALIS_EVENTS.appId });
     const events = Moralis.Object.extend(eventType==EVENT_TYPE.STAKED?"StakedEvents":"UnstakedEvents");
     const query = new Moralis.Query(events);
+
+    //TODO: use cursor instead?
+    query.limit(50000);
+
     let results = await query.find();
+
+    // console.log("count", results.length);
+
+    // for (let doc of results) {
+    //     console.dir(doc.attributes, { depth: null, colors: true })
+    // }
+
     results = results.filter(x => x.attributes.confirmed == true);
     for await (let doc of results) {
         let record = await Event.findOne({docId: doc.id + '-' + eventType});
@@ -151,10 +162,3 @@ cron.schedule('*/15 * * * *', async () => {
         await calculateGems();
     });
 });
-
-
-
-
-
-
-
