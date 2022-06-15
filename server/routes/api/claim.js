@@ -38,7 +38,15 @@ router.post('/', auth.required, auth.user, async(req, res, next) => {
             let claimRecord = new Claim();
             claimRecord.walletAddress = req.user.walletAddress;
             claimRecord.hasClaimed = true;
-            claimRecord.gems = config.gems;
+
+
+            if((userAssets.length + req.body.stakedAssets.length) > 0 && (userAssets.length + req.body.stakedAssets.length) <= 10){
+                claimRecord.gems = config.gems10Legends;
+            }else if((userAssets.length + req.body.stakedAssets.length) > 10 && (userAssets.length + req.body.stakedAssets.length) <= 25){
+                claimRecord.gems = config.gems25Legends;
+            }else if((userAssets.length + req.body.stakedAssets.length) > 25){
+                claimRecord.gems = config.gems50Legends;
+            }
 
             claimRecord.save().then(() => {
                 next(new OkResponse({status: 204, message: 'Gems Claimed Successfully!', gems: claimRecord.gems}));

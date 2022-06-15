@@ -12,17 +12,27 @@ mongoose.connect('mongodb://localhost:27017/LegendaryVault', {
         console.log(err.stack);
         process.exit(1);
     })
-    .then((connection) => {
+    .then(async(connection) => {
         console.log("Connected to DB in development environment");
-        seedConfig();
+        try{
+            await mongoose.connection.db.dropCollection('configs');
+            console.log("Config Collection Dropped...");
+            seedConfig();
+        }catch(e){
+            seedConfig();
+        }
     });
 
 const seedConfig = () => {
     let config = new Config();
     config.days = -1;
-    config.gems = 1000;
+    config.gems = 100;
+    config.gems10Legends = 100;
+    config.gems25Legends = 250;
+    config.gems50Legends = 500;
 
     config.save().then(() => {
         console.log("Config Seeded");
+        process.exit(0);
     })
 }
